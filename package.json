@@ -4,6 +4,8 @@
   "private": false,
   "devDependencies": {},
   "dependencies": {
+    "@types/docopt": "^0.6.29",
+    "@types/node": "^6.0.59",
     "gulp-concat": "^2.6.1",
     "gulp-help": "^1.6.1",
     "gulp-typescript": "^3.1.4",

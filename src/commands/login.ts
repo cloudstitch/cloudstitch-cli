@@ -1,4 +1,4 @@
-import ICommand = require("command");
+import ICommand = require("./command");
 
 export class Login implements ICommand {
   static doc() {
