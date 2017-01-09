@@ -1,45 +1,40 @@
 # cloudstitch-cli
 
-`clone user/app`
+The Cloudstitch CLI provides command line access to Cloudstitch, as well as a web server to facilitate easy development of widgets.
 
-Clones the user/app remotely, and then does a pull
+## Commands
 
-`pull user/app`
+The following commands can be invoked by typing `cloudstitch <command>` on the command line.
 
-Pulls down the files to local disk
+No login required:
 
-`serve`
+* `pull user/app` - Pulls down files to local disk
+* `serve` - Serves the current directory as a Cloudstitch widget.
+* `login` - Helps you log into Cloudstitch save your API key to ~/.cloudstitch
+ 
+Login required:
 
-Serve the widget locally, using data from `api.cloudstitch.com/$USER/$SPP`.
+* `clone <user>/<app> [folder]` - Clones the user/app on Cloudstitch and does a pull into `[folder]`. If `[folder]` is not specificed, creates one named `<app>`. 
+* `push [filename]` - Pushes `[filename]` (default: all files) to the remote Cloudstitch project.
 
-`clone user/app`
+## Cloudstitch Package format 
 
-Clones
+Cloudstitch project record information in a `package.json` file stored at the project root, under the key `cloudstitch`.
 
-`login`
+Available properties:
 
-Logs in and saves key to ~/.cloudstitch
+* `user` - The username of the widget instance on Cloudstitch
+* `app` - The appname of the widget instance on Cloudstitch
+* `kind` - The type of widget (`widget` | `jekyll`)
 
-`push`
+## Authentication and Configuration
 
-Pushes the local directory up to cloudstitch
+Your command line configuration, including API key, is stored in file called `.cloudstitch`. The CLI looks for that file in the current directory, then its parent, then its parent, all the way to the drive root. As a last resort, it looks in `~/.cloudstitch`.
 
-## Package format 
+The format of the config file is:
 
+```json
 {
-  user: username
-  app: appname
-}
-
-## Config
-
-Stored as a json file in `./.cloudstitch` or `~/.cloudstitch` (in that order of lookup)
-
-```
-{
-  key: key
-  user: user
+  "ApiKey": "Your API Key"
 }
 ```
-
-
