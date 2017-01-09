@@ -11,13 +11,13 @@ gulp.task('build', function () {
   var clientProject = ts.createProject({
     declaration: true,
     noResolve: true,
-    module: 'system',
+    module: 'commonjs',
     // typescript: require('typescript'),
     target: 'es5',
     outFile: 'cloudstitch-cli-no-dependencies.js',
     sourceMap: true
   });
-  
+
   var files = [
     'src/**/*.ts'
   ];
@@ -27,12 +27,12 @@ gulp.task('build', function () {
                     .pipe(clientProject());
 
   tsResult.dts.pipe(gulp.dest('./bin'));
-    
+
   var dependencies = gulp.src([
   ]);
 
   merge2(
-    dependencies,      
+    dependencies,
     tsResult.js
   ).pipe(
     concat('cloudstitch-cli.js')

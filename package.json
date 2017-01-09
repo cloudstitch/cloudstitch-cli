@@ -2,8 +2,12 @@
   "name": "cloudstitch-cli",
   "version": "0.0.1",
   "private": false,
-  "devDependencies": {
-  },
-  "dependencies": {    
+  "devDependencies": {},
+  "dependencies": {
+    "gulp-concat": "^2.6.1",
+    "gulp-help": "^1.6.1",
+    "gulp-typescript": "^3.1.4",
+    "merge2": "^1.0.3",
+    "typescript": "^2.1.4"
   }
 }
