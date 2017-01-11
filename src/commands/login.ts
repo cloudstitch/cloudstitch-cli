@@ -1,10 +1,12 @@
 import ICommand = require("./command");
 
-export class Login implements ICommand {
-  static doc() {
+class Login implements ICommand {
+  doc() {
     return `login <username>`;
   }
   run(options: Object) {
-
+    console.log("LOGIN NOT IMPLEMENTED");
   }
 }
+
+export =  new Login();

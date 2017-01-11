@@ -3,13 +3,15 @@
   "version": "0.0.1",
   "private": false,
   "devDependencies": {},
+  "bin": {
+    "cs": "bin/cs"
+  },
+  "scripts": {},
   "dependencies": {
-    "@types/docopt": "^0.6.29",
     "@types/node": "^6.0.59",
-    "gulp-concat": "^2.6.1",
-    "gulp-help": "^1.6.1",
-    "gulp-typescript": "^3.1.4",
-    "merge2": "^1.0.3",
+    "@types/request": "0.0.39",
+    "request": "^2.79.0",
+    "ts-node": "^2.0.0",
     "typescript": "^2.1.4"
   }
 }

@@ -1,27 +1,39 @@
-import Docopt = require("docopt");
 import fs = require("fs");
+import path = require("path");
 
-let loadFile = (file: string) => {
-  return fs.fs.readSync(file);
-};
+var docopt = require("docopt").docopt;
 
-let loadJson = (file: string) => {
-  return JSON.parse(loadFile(file));
-}
+import utils = require("./utils");
+import Config = require("./config");
+
+var dir = fs.readdirSync(path.join(__dirname, "./commands"))
+  .map(d => d.split(".")[0])
+  .filter(d => d !== "command");
+
+var commands = {};
 
 var doc = `
 Usage:
-  cloudstitch login <username>
-  cloudstitch pull <user/app>
-  cloudstitch serve
-  cloudstitch clone <user/app> [folder]
-  cloudstitch push [file]
-
 `;
 
-let packageJson = loadJson("../package.json");
-
-var options = Docopt.docopt(doc, {version: packageJson.version});
-for(var key in options) {
-  console.log(`${key}: ${options[key]}`);
+for(var ii in dir) {
+  var d = dir[ii];
+  commands[d] = require(path.join(__dirname, `./commands/${d}`));
+  doc = `${doc}  cs ${commands[d].doc()}\n`;
 }
+
+doc = `${doc}
+Options:
+  -h --help     Show this screen.
+  --version     Show version.
+`;
+
+var packageJson = utils.loadJson(path.join(__dirname, "../package.json"));
+
+var options = docopt(doc, {version: packageJson.version});
+
+Object.keys(commands).forEach(key => {
+  if(typeof options[key] === "boolean" && options[key]) {
+    commands[key].run(options);
+  }
+});
