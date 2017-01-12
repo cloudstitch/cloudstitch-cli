@@ -3,6 +3,26 @@ import { instance, Package } from "../package";
 
 export default function buildHtml(pkg?: Package) {
   let config = pkg || instance;
+  let ELEM = '';
+  if(config.get("variant") === "polymer") {
+    ELEM = `
+      <cloudstitch-${config.get("variant")}
+        user="${config.get("user")}"
+        app="${config.get("app")}"
+        componentUrl="/component">
+      </cloudstitch-${config.get("variant")}>
+    `;
+  } else {
+    ELEM = `
+      <cloudstitch-${config.get("variant")}
+        user="${config.get("user")}"
+        app="${config.get("app")}"
+        templateUrl="/widget.html"
+        styleUrl="/style.css"
+        scriptUrl="/script.js">
+      </cloudstitch-${config.get("variant")}>
+    `;
+  }
   return `<!DOCTYPE html>
   <html lang="">
     <head>
@@ -12,7 +32,7 @@ export default function buildHtml(pkg?: Package) {
       <script src="https://cdnjs.cloudflare.com/ajax/libs/webcomponentsjs/0.7.23/webcomponents.min.js"></script>
     </head>
     <body>
-      <cloudstitch-${config.get("variant")} user="${config.get("user")}" app="${config.get("app")}" templateUrl="/widget.html" styleUrl="/style.css" scriptUrl="/script.js"></cloudstitch-${config.get("variant")}>
+      ${ELEM}
     </body>
   </html>`;
 };

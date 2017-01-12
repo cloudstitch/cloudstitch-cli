@@ -2,12 +2,15 @@ import * as http from "http";
 import * as fs from "fs";
 import * as path from "path";
 import * as url from "url";
+
+import * as q from "q";
 let opn = require('opn');
 
 import { instance as config } from "../config";
 import { instance as pkg, Package } from "../package";
-
 import buildHtml from "./buildHtml";
+import buildComponent from "./buildComponent";
+import * as utils from "../utils";
 
 interface IncomingMessage extends http.IncomingMessage {
   path: string;
@@ -27,28 +30,25 @@ export default class Server {
     this.server = http.createServer(this.handleReq);
     this.server.listen(this.port, () => {
       console.log(`Listening on ${this.port}.`);
-      opn(`http://localhost:${this.port}`)
+      opn(`http://localhost:${this.port}`);
     });
   }
   handleReq = (req: IncomingMessage, res: http.ServerResponse) => {
     req.path = url.parse(req.url).path;
+    console.log(req.path);
     if(req.path === "/" || req.path === "index.html") {
       this.handleRoot(req, res);
-    } else if (req.path === "component" && pkg.get("varient") === "polymer") {
+    } else if (this.pkg.get("variant") === "polymer" && req.path === "/component") {
       this.handleComponent(req, res);
     } else{
       this.handleStatic(req, res);
     }
   }
-  handleRoot = (req: IncomingMessage, res: http.ServerResponse) => {
-    if(pkg.get("variant") === "polymer") {
-      //TODO Handle this special case, maybe
-    } else {
-      res.statusCode = 200;
-      res.end(buildHtml(this.pkg));
-    }
+  handleRoot(req: IncomingMessage, res: http.ServerResponse)  {
+    res.statusCode = 200;
+    res.end(buildHtml(this.pkg));
   }
-  handleStatic = (req: IncomingMessage, res: http.ServerResponse) => {
+  handleStatic(req: IncomingMessage, res: http.ServerResponse) {
     let filePath = path.join(this.pkg.packageRootPath, req.path);
     fs.stat(filePath, (err, stat) => {
       if(err) {
@@ -69,7 +69,13 @@ export default class Server {
     res.statusCode = 404;
     res.end();
   }
-  handleComponent = (req: IncomingMessage, res: http.ServerResponse) => {
-    //TODO Build this components html
+  handleComponent(req: IncomingMessage, res: http.ServerResponse) {
+    let promises = ["styles.css", "scripts.js", "widget.html"].map((file: string) => {
+      return utils.loadFilePromise(path.join(this.pkg.packageRootPath, file));
+    })
+    q.all(promises).then((files) => {
+      res.statusCode = 200;
+      res.end(buildComponent(files[0], files[1], files[2], this.pkg));
+    });
   }
 }

@@ -1,9 +1,23 @@
 import * as fs from "fs";
 import * as path from "path";
 
+import * as q from "q";
+
 export function loadFile(file: string): string {
   return fs.readFileSync(file).toString("utf8");
 };
+
+export function loadFilePromise(filePath: string): q.Promise<string> {
+  return q.Promise<string>((resolve, reject) => {
+    fs.readFile(filePath, (err, file) => {
+      if(err) {
+        reject(err.message);
+      } else {
+        resolve(file.toString("utf-8"));
+      }
+    });
+  });
+}
 
 export function loadJson(file: string): any {
   return JSON.parse(loadFile(file));
