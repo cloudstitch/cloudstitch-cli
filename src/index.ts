@@ -1,10 +1,9 @@
-import fs = require("fs");
-import path = require("path");
+import * as fs from "fs";
+import * as path from "path";
 
-var docopt = require("docopt").docopt;
+import { docopt } from "docopt";
 
-import utils = require("./utils");
-import Config = require("./config");
+import * as utils from "./utils";
 
 var dir = fs.readdirSync(path.join(__dirname, "./commands"))
   .map(d => d.split(".")[0])

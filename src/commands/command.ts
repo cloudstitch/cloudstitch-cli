@@ -1,7 +1,17 @@
 
-interface ICommand{
+export interface ICommand{
   doc(): string;
-  run(options: Object): void;
+  run(options: ICommandOptions): void;
 }
 
-export = ICommand;
+export interface ICommandOptions {
+  clone: boolean;
+  login: boolean;
+  pull: boolean;
+  push: boolean;
+  serve: boolean;
+
+  '<user/app>': string;
+  "<file>": string;
+  "<folder>": string;
+}

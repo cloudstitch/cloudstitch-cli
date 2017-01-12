@@ -1,11 +1,27 @@
-import ICommand = require("./command");
+var prompt = require("prompt");
+
+import { ICommand, ICommandOptions } from "./command";
 
 class Login implements ICommand {
   doc() {
-    return `login <username>`;
+    return "login";
   }
-  run(options: Object) {
-    console.log("LOGIN NOT IMPLEMENTED");
+  run(options: ICommandOptions) {
+    var schema = {
+      properties: {
+        username: {
+          required: true
+        },
+        password: {
+          require: true,
+          hidden: true
+        }
+      }
+    };
+    prompt.get(schema, this.runAuth);
+  }
+  runAuth = (err, result) => {
+    
   }
 }
 

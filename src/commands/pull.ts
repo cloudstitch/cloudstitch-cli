@@ -1,8 +1,8 @@
-import ICommand = require("./command");
+import { ICommand, ICommandOptions } from "./command";
 
 class Pull implements ICommand {
   doc() {
-    return `pull <user/app>`;
+    return "pull <user/app>";
   }
   run(options: Object) {
     console.log("PULL NOT IMPLEMENTED");

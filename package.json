@@ -10,6 +10,8 @@
   "dependencies": {
     "@types/node": "^6.0.59",
     "@types/request": "0.0.39",
+    "opn": "^4.0.2",
+    "prompt": "^1.0.0",
     "request": "^2.79.0",
     "ts-node": "^2.0.0",
     "typescript": "^2.1.4"

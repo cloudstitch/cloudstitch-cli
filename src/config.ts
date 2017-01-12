@@ -1,7 +1,7 @@
-import path = require("path");
-import fs = require("fs");
+import * as path from "path";
+import * as fs from "fs";
 
-import utils = require("./utils");
+import * as utils from "./utils";
 
 export class Config {
   homePath: string;
@@ -10,24 +10,11 @@ export class Config {
   localConfig: Object;
   homeConfig: Object;
   contructor() {
-    this.homePath = process.env[process.platform === "win32" ? "USERPROFILE" : "HOME"];
-    this.localConfig = this._readFromParent(process.cwd());
+    this.homePath = utils.homePath;
+    let fileDetails = utils.readFromParent(process.cwd(), ".cloudstitch");
+    this.localConfig = fileDetails.fileJson;
+    this.localConfigFile = fileDetails.filePath;
     this.homeConfig = this._readHomeConfig();
-  }
-  _readFromParent(currentPath: string): Object {
-    //stop at the home dir
-    //TODO test this on windows, perhaps living in C:/dev or simmillar will break this.
-    if(currentPath === this.homePath) {
-      this.localConfigFile = path.join(process.cwd(), ".cloudstitch");
-      return {};
-    }
-    var configFile = path.join(currentPath, ".cloudstitch");
-    if(utils.isFile(configFile)) {
-      this.localConfig = configFile;
-      return utils.loadJson(configFile);
-    } else {
-      return this._readFromParent(path.resolve(currentPath, "../"));
-    }
   }
   _readHomeConfig(): Object {
     var homeConfigPath = path.join(this.homePath, ".config");
@@ -42,7 +29,13 @@ export class Config {
     }
   }
   get(key: string): string {
-    return this.localConfig[key] || this.homeConfig[key];
+    if(this.localConfig) {
+      this.localConfig[key];
+    } else if(this.homeConfig) {
+      this.homeConfig[key]
+    } else {
+      return undefined;
+    }
   }
   set(key: string, value: string, local=false) {
     if(local) {
@@ -55,4 +48,4 @@ export class Config {
   }
 }
 
-export var instance = new Config();
+export const instance = new Config();

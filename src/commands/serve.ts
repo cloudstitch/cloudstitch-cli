@@ -1,11 +1,14 @@
-import ICommand = require("./command");
+import { ICommand, ICommandOptions } from "./command";
+
+import Server from "../server";
 
 class Serve implements ICommand {
   doc() {
-    return `serve`;
+    return "serve [<folder>]";
   }
-  run(options: Object) {
-    console.log("SERVE NOT IMPLEMENTED");
+  run(options: ICommandOptions) {
+    let server = new Server(options["<folder>"]);
+    server.run();
   }
 }
 

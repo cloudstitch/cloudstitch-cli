@@ -1,8 +1,8 @@
-import ICommand = require("./command");
+import { ICommand, ICommandOptions } from "./command";
 
 class Clone implements ICommand {
   doc() {
-    return `clone <user/app> [folder]`;
+    return "clone <user/app> [<folder>]";
   }
   run(options: Object) {
     console.log("CLONE NOT IMPLEMENTED");
