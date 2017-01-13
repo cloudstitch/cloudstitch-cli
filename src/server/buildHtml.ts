@@ -1,7 +1,7 @@
 
 import { instance, Package } from "../package";
 
-export default function buildHtml(pkg?: Package) {
+export default function buildHtml(port: number, pkg?: Package) {
   let config = pkg || instance;
   let ELEM = '';
   if(config.get("variant") === "polymer") {
@@ -9,7 +9,7 @@ export default function buildHtml(pkg?: Package) {
       <cloudstitch-${config.get("variant")}
         user="${config.get("user")}"
         app="${config.get("app")}"
-        componentUrl="/component">
+        componentUrl="/component"> <!-- TODO Implement this in the polmyer element -->
       </cloudstitch-${config.get("variant")}>
     `;
   } else {
@@ -17,9 +17,7 @@ export default function buildHtml(pkg?: Package) {
       <cloudstitch-${config.get("variant")}
         user="${config.get("user")}"
         app="${config.get("app")}"
-        templateUrl="/widget.html"
-        styleUrl="/style.css"
-        scriptUrl="/script.js">
+        file-domain="localhost:${port}">
       </cloudstitch-${config.get("variant")}>
     `;
   }
