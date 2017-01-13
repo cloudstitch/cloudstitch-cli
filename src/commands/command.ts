@@ -1,6 +1,8 @@
 
 export interface ICommand{
-  doc(): string;
+  doc: string;
+  requiresPkg: boolean;
+  requiresLogin: boolean;
   run(options: ICommandOptions): void;
 }
 

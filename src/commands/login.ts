@@ -3,9 +3,9 @@ var prompt = require("prompt");
 import { ICommand, ICommandOptions } from "./command";
 
 class Login implements ICommand {
-  doc() {
-    return "login";
-  }
+  doc = "login";
+  requiresPkg = false;
+  requiresLogin = false;
   run(options: ICommandOptions) {
     var schema = {
       properties: {

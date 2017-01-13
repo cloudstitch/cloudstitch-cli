@@ -13,6 +13,8 @@ import buildHtml from "./buildHtml";
 import buildComponent from "./buildComponent";
 import * as utils from "../utils";
 
+import {instance as logger} from "../logger";
+
 interface IncomingMessage extends http.IncomingMessage {
   path: string;
 }
@@ -38,11 +40,12 @@ export default class Server {
     this.basePath = basePath;
     this.pkg = this.basePath ? new Package(this.basePath) : pkg;
     this.port = parseInt(config.get("port")) || process.env.PORT || 8080;
+    logger.info(`building server on ${this.basePath || this.pkg.packageRootPath} with port ${this.port}`)
   }
   run() {
     this.server = http.createServer(this.handleReq);
     this.server.listen(this.port, () => {
-      console.log(`Listening on ${this.port}.`);
+      logger.warn(`Listening on ${this.port}.`);
       opn(`http://localhost:${this.port}`);
     });
   }
@@ -58,22 +61,20 @@ export default class Server {
       binary = true;
       result = this.handleStatic(req.path);
     }
-    result.then((responce: Responce) => {
+    result.then(this.dispatchResponce(req, res, binary)).catch(this.dispatchResponce(req, res, binary));
+  }
+  dispatchResponce(req: IncomingMessage, res: http.ServerResponse, binary: boolean) {
+    return (responce: Responce) => {
       res.statusCode = responce.status;
       res.setHeader('Conten-Type', responce.contentType);
-      console.log(`[${req.path}] => {${responce.status}}: ${responce.contentType}`);
+      logger.debug(`[${req.path}] => {${responce.status}}: ${responce.contentType}`);
       if(binary) {
         res.write(responce.content, "binary");
       } else {
         res.write(responce.content);
       }
       res.end();
-    }).catch((err: Responce) => {
-      res.statusCode = err.status;
-      console.log(`[${req.path}] => {${err.status}}: ${err.contentType}`);
-      res.setHeader('Conten-Type', err.contentType);
-      res.end(err.content);
-    });
+    };
   }
   handleRoot(): q.Promise<Responce>  {
     return q.Promise<Responce>((resolve, reject) => {

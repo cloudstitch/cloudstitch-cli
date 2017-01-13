@@ -9,19 +9,21 @@ export class Config {
   localConfigFile: string;
   localConfig: Object;
   homeConfig: Object;
-  contructor() {
+  homeFileName = process.platform === "win32" ? ".cloudstitch" : "cloudstitch.json";
+  localFileName = ".cloudstitch";
+  constructor() {
     this.homePath = utils.homePath;
-    let fileDetails = utils.readFromParent(process.cwd(), ".cloudstitch");
-    this.localConfig = fileDetails.fileJson;
-    this.localConfigFile = fileDetails.filePath;
-    this.homeConfig = this._readHomeConfig();
+    let fileDetails = utils.readFromParent(process.cwd(), this.localFileName);
+    this.localConfig = fileDetails.fileJson || {};
+    this.localConfigFile = fileDetails.filePath || path.join(process.cwd(), this.localFileName);
+    this.homeConfig = this._readHomeConfig() || {};
   }
   _readHomeConfig(): Object {
     var homeConfigPath = path.join(this.homePath, ".config");
     if(process.platform !== "win32" && !utils.isDirectory(homeConfigPath)) {
       fs.mkdirSync(homeConfigPath);
     }
-    this.homeConfigFile = path.join(process.platform === "win32" ? this.homePath : homeConfigPath, ".cloudstitch");
+    this.homeConfigFile = path.join(process.platform === "win32" ? this.homePath : homeConfigPath, this.homeFileName)
     if(utils.isFile(this.homeConfigFile)) {
       return utils.loadJson(this.homeConfigFile);
     } else {
@@ -29,21 +31,21 @@ export class Config {
     }
   }
   get(key: string): string {
-    if(this.localConfig) {
-      this.localConfig[key];
-    } else if(this.homeConfig) {
-      this.homeConfig[key]
+    if(this.localConfig && this.localConfig[key]) {
+      return this.localConfig[key];
+    } else if(this.homeConfig && this.homeConfig[key]) {
+      return this.homeConfig[key];
     } else {
       return undefined;
     }
   }
   set(key: string, value: string, local=false) {
-    if(local) {
+    if(local && this.localConfigFile) {
       this.localConfig[key] = value;
       fs.writeFileSync(this.localConfigFile, JSON.stringify(this.localConfig));
     } else {
       this.homeConfig[key] = value;
-      fs.writeFileSync(this.homeConfigFile, JSON.stringify(this.localConfig));
+      fs.writeFileSync(this.homeConfigFile, JSON.stringify(this.homeConfig));
     }
   }
 }
