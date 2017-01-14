@@ -1,6 +1,7 @@
 import * as request from "request";
 
 import { instance as config } from "./config";
+import { instance as logger } from "./logger";
 
 export class Request {
   get(url: string, cb: request.RequestCallback) {
@@ -15,15 +16,19 @@ export class Request {
   delete(url: string, cb: request.RequestCallback) {
     this._makeRequest("DELETE", url, cb);
   }
-  _makeRequest(method: string, url: string, cb: request.RequestCallback, body?: any, json = false) {
-    //TODO Add header with token?
+  _makeRequest(method: string, path: string, cb: request.RequestCallback, body?: any, json = false) {
+    let url = `${config.get("baseApiEndPoint") || 'https://api.cloudstitch.com'}/${path}`;
+    let headers = {
+      "User-Agent": `${process.title}-cli`
+    };
+    if(config.get("ApiKey")) {
+      headers["Authorization"] = `Bearer ${config.get("ApiKey")}`;
+    }
+    logger.debug(`[${method}]: ${url}`)
     request({
       method,
-      headers: {
-        "User-Agent": `${process.title}-cli`,
-        "Authorization": `Bearer ${config.get("ApiKey")}`
-      },
-      url: `https://api.clousstatich/v1/${url}`,
+      headers,
+      url,
       body,
       json
     }, cb);
