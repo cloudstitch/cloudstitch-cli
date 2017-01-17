@@ -1,9 +1,33 @@
 
 import { instance, Package } from "../package";
 
-export default function buildHtml(port: number, pkg?: Package) {
-  let config = pkg || instance;
-  let ELEM = '';
+export default function buildHtml(port: number, watch: boolean, pkg?: Package) {
+  let config = pkg || instance,
+      ELEM = '',
+      script = '';
+  if(watch) {
+    script = `
+    <script>
+      (function() {
+        document.addEventListener("DOMContentLoaded", function(event) { 
+          var websocket = new WebSocket("ws://localhost:${port}/", "cloudstitch-livereload-protocol");
+          websocket.onmessage = function() {
+            websocket.close();
+            window.location = "/";
+          };
+          websocket.onopen = function(event) {
+            if(websocket.readyState === websocket.OPEN) {
+              console.log("Socket Connection open");
+              websocket.send("connected");
+            } else {
+              setTimeout(websocket.onopen, 250);
+            }
+          };
+        });
+      })();
+    </script>
+    `;
+  }
   if(config.get("variant") === "polymer") {
     ELEM = `
       <cloudstitch-${config.get("variant")}
@@ -32,5 +56,6 @@ export default function buildHtml(port: number, pkg?: Package) {
     <body>
       ${ELEM}
     </body>
+    ${script}
   </html>`;
 };

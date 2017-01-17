@@ -16,4 +16,5 @@ export interface ICommandOptions {
   '<user/app>': string;
   "<file>": string;
   "<folder>": string;
+  "--watch": boolean;
 }

@@ -3,7 +3,9 @@ import * as fs from "fs";
 import * as path from "path";
 import * as url from "url";
 
+import * as watch from "chokidar";
 import * as q from "q";
+import * as websocket from "websocket";
 let mime = require("mime-types");
 let opn = require("opn");
 
@@ -34,13 +36,18 @@ export default class Server {
   basePath: string;
   port: number;
   server: http.Server;
+  wsServer: websocket.server;
+  socketConnection: Array<websocket.connection>;
   pkg: Package;
   notFound = new Responce(404, "<h1>Not Found</h1>", "text/html");
-  constructor(basePath?: string) {
+  watch: boolean;
+  constructor(watch: boolean, basePath?: string) {
     this.basePath = basePath;
+    this.watch = watch;
     this.pkg = this.basePath ? new Package(this.basePath) : pkg;
     this.port = parseInt(config.get("port")) || process.env.PORT || 8080;
-    logger.info(`building server on ${this.basePath || this.pkg.packageRootPath} with port ${this.port}`)
+    logger.info(`building server on ${this.basePath || this.pkg.packageRootPath} with port ${this.port}`);
+    this.socketConnection = new Array<websocket.connection>();
   }
   run() {
     this.server = http.createServer(this.handleReq);
@@ -48,6 +55,15 @@ export default class Server {
       logger.warn(`Listening on ${this.port}.`);
       opn(`http://localhost:${this.port}`);
     });
+    if(this.watch) {
+      this.wsServer = new websocket.server({
+        httpServer: this.server,
+        autoAcceptConnections: false
+      });
+      this.wsServer.on("request", this.handleWsRequest);
+
+      watch.watch(`${this.basePath}/**`).on('all', this.handleFsUpdate);
+    }
   }
   handleReq = (req: IncomingMessage, res: http.ServerResponse) => {
     req.path = url.parse(req.url).path;
@@ -78,7 +94,7 @@ export default class Server {
   }
   handleRoot(): q.Promise<Responce>  {
     return q.Promise<Responce>((resolve, reject) => {
-      resolve(new Responce(200, buildHtml(this.port, this.pkg), "text/html"));
+      resolve(new Responce(200, buildHtml(this.port, this.watch, this.pkg), "text/html"));
     });
   }
   handleStatic(baseUrl: string): q.Promise<Responce> {
@@ -113,5 +129,22 @@ export default class Server {
         resolve(new Responce(200, buildComponent(files[0], files[1], files[2], this.pkg), mime.lookup("html")))
       });
     });
+  }
+  handleWsRequest = (request: websocket.request) => {
+    let connection = request.accept('cloudstitch-livereload-protocol', request.origin);
+    connection.on('close', this.handleSocketClose(connection));
+    logger.info(`Incomming socket connection ${connection.socket.address().address}`);
+    this.socketConnection.push(connection);
+  }
+  handleFsUpdate = (event: string, path: string) => {
+    logger.info(`Fs update ${path}`);
+    this.socketConnection.forEach((connection: websocket.connection) => connection.send("refresh"));
+  }
+  handleSocketClose = (thisConnection: websocket.connection) => {
+    return () => {
+      logger.info(`Socket connection closed`);
+      let idx = this.socketConnection.indexOf(thisConnection);
+      this.socketConnection.splice(idx, 1);
+    };
   }
 };
