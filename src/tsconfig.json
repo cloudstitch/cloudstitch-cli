@@ -13,6 +13,11 @@
         "removeComments": true,
         "noLib": false,
         "preserveConstEnums": true,
+        "lib": [
+            "es2015",
+            "es2015.core",
+            "es2015.promise"
+        ],
         "suppressImplicitAnyIndexErrors": true
     },
     "exclude": [

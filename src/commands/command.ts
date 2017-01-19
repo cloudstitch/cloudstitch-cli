@@ -17,4 +17,5 @@ export interface ICommandOptions {
   "<file>": string;
   "<folder>": string;
   "--watch": boolean;
+  "--status": boolean;
 }

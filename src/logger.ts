@@ -4,6 +4,7 @@ var timestamp = require("time-stamp");
 import { instance as config } from "./config";
 
 let colorMap = {
+  "success": "green",
   "error": "red",
   "warn": "yellow",
   "info": "blue"
@@ -12,6 +13,7 @@ let colorMap = {
 let levelMap = {
   "error": 0,
   "warn": 1,
+  "success": 1,
   "debug": 2,
   "info": 3
 };
@@ -45,6 +47,9 @@ export class Logger {
   }
   info(message) {
     this._log("info", message);
+  }
+  success(message) {
+    this._log("success", message, "log");
   }
 
 }
