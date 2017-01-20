@@ -45,21 +45,31 @@ export default class Request {
       };
       logger.debug(`[${method}]: ${finalUrl}`)
       request(req, (err: any, res: request.RequestResponse, body: any) => {
+        logger.info(`Res from ${method}:${finalUrl} => ${res.statusCode}`)
         if(err) {
+          logger.info(`Res from returned error ${method}:${finalUrl} => ${err}`)
           reject({
             error: err
           });
+          return;
         } else {
           if(res.statusCode >= 200 && res.statusCode < 400) {
+            logger.info(`Res detected success from ${method}:${finalUrl} => ${body}`)
+            if(res.headers["content-type"] === "application/json" && typeof body === "string") {
+              body = JSON.parse(body);
+            }
             resolve({
               res,
               body
             });
+            return;
           } else {
+            logger.info(`Res detected error from ${method}:${finalUrl} => ${body}`)
             reject({
               res,
               error: body.error
-            })
+            });
+            return;
           }
         }
       });

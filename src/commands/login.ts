@@ -4,6 +4,7 @@ import { ICommand, ICommandOptions } from "./command";
 import Request from "../request";
 import { instance as logger } from "../logger";
 import { instance as config } from "../config";
+import token from "../token";
 
 class Login implements ICommand {
   doc = "login [--status]";
@@ -14,14 +15,12 @@ class Login implements ICommand {
   run(options: ICommandOptions) {
     this.options = options;
     if(options["--status"]) {
-      let ApiKey = config.get("ApiKey"),
-          Username = config.get("Username");;
-      if(ApiKey && Username) {
-        //TODO should check with backend that token is good
+      token().then(() => {
+        let Username = config.get("Username");
         logger.success(`Logged in as ${Username}`);
-      } else {
+      }, () => {
         logger.error("You are not logged in");
-      }
+      });
     } else {
       this.trys++;
       var schema = {

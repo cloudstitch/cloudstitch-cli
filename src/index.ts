@@ -7,6 +7,7 @@ import * as utils from "./utils";
 import { instance as pkg, Package } from "./package";
 import { instance as logger } from "./logger";
 import { instance as config } from "./config";
+import token from "./token";
 
 var dir = fs.readdirSync(path.join(__dirname, "./commands"))
   .map(d => d.split(".")[0])
@@ -64,11 +65,14 @@ Object.keys(commands).forEach(key => {
         messagePackageValidationError(thisPkgValidation);
       }
     }
+    let runCommand = () => {
+      commands[key].run(options);
+    };
     if(command.requiresLogin) {
-      if(!config.get("ApiToken")) {
-        messageLoginError();
-      }
+      token().then(runCommand, messageLoginError);
+    } else {
+      runCommand();
     }
-    commands[key].run(options);
+    
   }
 });
