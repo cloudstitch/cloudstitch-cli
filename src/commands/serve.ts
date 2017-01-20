@@ -1,7 +1,7 @@
 import { ICommand, ICommandOptions } from "./command";
 
-import Server from "../server";
-import { instance as pkg } from "../package";
+import Server from "../lib/server";
+import { instance as pkg } from "../lib/package";
 
 class Serve implements ICommand {
   doc = "serve [<folder>] [--watch]";

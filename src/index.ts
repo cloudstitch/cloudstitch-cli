@@ -3,11 +3,11 @@ import * as path from "path";
 
 import { docopt } from "docopt";
 
-import * as utils from "./utils";
-import { instance as pkg, Package } from "./package";
-import { instance as logger } from "./logger";
-import { instance as config } from "./config";
-import token from "./token";
+import * as utils from "./lib/utils";
+import { instance as pkg, Package } from "./lib/package";
+import { instance as logger } from "./lib/logger";
+import { instance as config } from "./lib/config";
+import token from "./lib/token";
 
 var dir = fs.readdirSync(path.join(__dirname, "./commands"))
   .map(d => d.split(".")[0])

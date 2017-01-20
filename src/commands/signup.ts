@@ -1,9 +1,9 @@
 var prompt = require("prompt");
 
 import { ICommand, ICommandOptions } from "./command";
-import Request from "../request";
-import { instance as logger } from "../logger";
-import { instance as config } from "../config";
+import Request from "../lib/request";
+import { instance as logger } from "../lib/logger";
+import { instance as config } from "../lib/config";
 
 class Signup implements ICommand {
   doc = "signup";
