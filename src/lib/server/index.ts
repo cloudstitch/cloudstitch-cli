@@ -4,7 +4,7 @@ import * as path from "path";
 import * as url from "url";
 
 import * as watch from "chokidar";
-import * as q from "q";
+import * as Q from "q";
 import * as websocket from "websocket";
 let mime = require("mime-types");
 let opn = require("opn");
@@ -21,16 +21,15 @@ interface IncomingMessage extends http.IncomingMessage {
   path: string;
 }
 
-class Responce {
+interface IResponce {
   status: number;
   content: string;
   contentType: string;
-  constructor(status: number, content: string, contenType: string) {
-    this.status = status;
-    this.content = content;
-    this.contentType = contenType;
-  }
 };
+
+function Responce(status: number, content: string, contentType: string) {
+  return { status, content, contentType };
+}
 
 export default class Server {
   basePath: string;
@@ -39,7 +38,7 @@ export default class Server {
   wsServer: websocket.server;
   socketConnection: Array<websocket.connection>;
   pkg: Package;
-  notFound = new Responce(404, "<h1>Not Found</h1>", "text/html");
+  notFound = Responce(404, "<h1>Not Found</h1>", "text/html");
   watch: boolean;
   constructor(watch: boolean, basePath?: string) {
     this.basePath = basePath;
@@ -67,7 +66,7 @@ export default class Server {
   }
   handleReq = (req: IncomingMessage, res: http.ServerResponse) => {
     req.path = url.parse(req.url).path;
-    let result: q.Promise<Responce>;
+    let result: Promise<IResponce>;
     let binary = false;
     if(req.path === "/" || req.path === "index.html") {
       result = this.handleRoot();
@@ -80,7 +79,7 @@ export default class Server {
     result.then(this.dispatchResponce(req, res, binary)).catch(this.dispatchResponce(req, res, binary));
   }
   dispatchResponce(req: IncomingMessage, res: http.ServerResponse, binary: boolean) {
-    return (responce: Responce) => {
+    return (responce: IResponce) => {
       res.statusCode = responce.status;
       res.setHeader('Conten-Type', responce.contentType);
       logger.debug(`[${req.path}] => {${responce.status}}: ${responce.contentType}`);
@@ -92,43 +91,39 @@ export default class Server {
       res.end();
     };
   }
-  handleRoot(): q.Promise<Responce>  {
-    return q.Promise<Responce>((resolve, reject) => {
-      resolve(new Responce(200, buildHtml(this.port, this.watch, this.pkg), "text/html"));
-    });
+  async handleRoot(): Promise<IResponce>  {
+    return Responce(200, buildHtml(this.port, this.watch, this.pkg), "text/html");
   }
-  handleStatic(baseUrl: string): q.Promise<Responce> {
-    return q.Promise<Responce>((resolve, reject) => {
-      let baseAppUrl = `\/${this.pkg.get("user")}\/${this.pkg.get("app")}`;
-      if(baseUrl.indexOf(baseAppUrl) !== -1) {
-        baseUrl = baseUrl.replace(baseAppUrl, "");
-      }
-      let filePath = path.join(this.pkg.packageRootPath, baseUrl);
-      fs.stat(filePath, (err, stat) => {
-        if(err) {
-          reject(this.notFound);
-        } else {
-          fs.readFile(filePath, "binary", (err, file) => {
-            if(err) {
-              reject(this.notFound);
-            } else {
-              let extension = filePath.split(".")[1];
-              resolve(new Responce(200, file, mime.lookup(extension)));
-            }
-          });
-        }
-      })
-    });
+  async handleStatic(baseUrl: string): Promise<IResponce> {
+    let baseAppUrl = `\/${this.pkg.get("user")}\/${this.pkg.get("app")}`;
+    if(baseUrl.indexOf(baseAppUrl) !== -1) {
+      baseUrl = baseUrl.replace(baseAppUrl, "");
+    }
+    let filePath = path.join(this.pkg.packageRootPath, baseUrl);
+    let stat;
+    try {
+      stat = await Q.nfcall(fs.stat, filePath);
+    } catch (e) {}
+    if(!stat) {
+      return this.notFound;
+    }
+    let file;
+    try {
+      file = await Q.nfcall(fs.readFile, filePath, "binary");
+    } catch(e) {}
+    if(file) {
+      let extension = filePath.split(".")[1];
+      return Responce(200, file, mime.lookup(extension));
+    } else {
+      return this.notFound;
+    }
   }
-  handleComponent(): q.Promise<Responce> {
-    return q.Promise<Responce>((resolve, reject) => {
-      let promises = ["styles.css", "scripts.js", "widget.html"].map((file: string) => {
-        return utils.loadFilePromise(path.join(this.pkg.packageRootPath, file));
-      })
-      q.all(promises).then((files) => {
-        resolve(new Responce(200, buildComponent(files[0], files[1], files[2], this.pkg), mime.lookup("html")))
-      });
-    });
+  async handleComponent(): Promise<IResponce> {
+    let promises = ["styles.css", "scripts.js", "widget.html"].map((file: string) => {
+      return utils.loadFilePromise(path.join(this.pkg.packageRootPath, file));
+    })
+    let files: string[] = await Promise.all(promises);
+    return Responce(200, buildComponent(files[0], files[1], files[2], this.pkg), mime.lookup("html"));
   }
   handleWsRequest = (request: websocket.request) => {
     let connection = request.accept('cloudstitch-livereload-protocol', request.origin);

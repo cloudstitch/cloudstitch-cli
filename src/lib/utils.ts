@@ -1,26 +1,35 @@
 import * as fs from "fs";
 import * as path from "path";
 
-import * as q from "q";
+import * as Q from "q";
 
 export function loadFile(file: string): string {
-  return fs.readFileSync(file).toString("utf8");
+  try {
+    return fs.readFileSync(file).toString("utf8");
+  } catch(e) {
+    return undefined;
+  }
 };
 
-export function loadFilePromise(filePath: string): q.Promise<string> {
-  return q.Promise<string>((resolve, reject) => {
-    fs.readFile(filePath, (err, file) => {
-      if(err) {
-        reject(err.message);
-      } else {
-        resolve(file.toString("utf-8"));
-      }
-    });
-  });
+export async function loadFilePromise(filePath: string): Promise<string> {
+  let fileContent;
+  try {
+    fileContent = await Q.nfcall(fs.readFile, filePath);
+  } catch(e) {}
+  if(fileContent) {
+    return fileContent.toString("utf-8");
+  } else {
+    return undefined;
+  }
 }
 
 export function loadJson(file: string): any {
-  return JSON.parse(loadFile(file));
+  let jsonFile = loadFile(file);
+  if(jsonFile) {
+    return JSON.parse(jsonFile);
+  } else {
+    return undefined;
+  }
 }
 
 export function isFile(file: string): boolean {

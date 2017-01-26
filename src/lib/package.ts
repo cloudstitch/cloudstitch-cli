@@ -22,10 +22,12 @@ export class Package {
     if(basePath) {
       this.packageRootPath = path.resolve(process.cwd(), basePath);
       let loadedJson = utils.loadJson(path.join(this.packageRootPath, this.pagkaceDefName));
-      this.packageDef = new PackageDef(
-        loadedJson["user"],
-        loadedJson["app"],
-        loadedJson["variant"]);
+      if(loadedJson) {
+        this.packageDef = new PackageDef(
+          loadedJson["user"],
+          loadedJson["app"],
+          loadedJson["variant"]);
+      }
     } else {
       let fileDetails = utils.readFromParent(process.cwd(), this.pagkaceDefName);
       if(fileDetails.fileJson) {
