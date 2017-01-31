@@ -8,6 +8,8 @@ import * as Q from "q";
 
 import Request, { IRequestResult } from "./request";
 import { instance as logger } from "../lib/logger";
+import { instance as config } from "../lib/config";
+import * as utils from "../lib/utils";
 
 
 export interface IProjectDetails {
@@ -161,5 +163,33 @@ export default class Project {
       false,
       "application/zip"
     );
+  }
+
+  static async clone(title: string, from: string, backend: "google" | "microsoft"): Promise<string> {
+    //TODO get the final URL for this.
+    let req = {
+      title,
+      backend,
+      fromProject: from
+    };
+    let res = await Request.post("http://cloudstitch.com/api/clone", req);
+    //TODO verify this data responce pattern
+    let appName = res.body.appName;
+
+    let finished = false;
+    while(!finished) {
+      await utils.setTimeoutPromise(500);
+      // TODO get this status check for this url
+      let statusCheck = await Request.get(
+        `http://cloudstitch.com/api/cloneStatus/${config.get("Username")}/${appName}`
+      );
+      //TODO verify this status result patern
+      finished = statusCheck.body.finished;
+    }
+    return appName;
+  }
+
+  static map(frontend: string): string {
+    return "handlebars";
   }
 }

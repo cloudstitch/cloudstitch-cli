@@ -12,8 +12,10 @@ export interface ICommandOptions {
   pull: boolean;
   push: boolean;
   serve: boolean;
+  create: boolean;
+  signup: boolean;
 
-  '<user/app>': string;
+  "<user/app>": string;
   "<file>": string;
   "<folder>": string;
   "--watch": boolean;

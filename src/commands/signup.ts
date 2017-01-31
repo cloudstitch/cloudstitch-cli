@@ -1,4 +1,4 @@
-var prompt = require("prompt");
+import * as inquirer from "inquirer";
 
 import { ICommand, ICommandOptions } from "./command";
 import Request from "../lib/request";
@@ -10,29 +10,36 @@ class Signup implements ICommand {
   requiresPkg = false;
   requiresLogin = false;
   run(options: ICommandOptions) {
-    var schema = {
-      properties: {
-        username: {
-          required: true
-        },
-        email: {
-          required: true
-        },
-        password: {
-          require: true,
-          hidden: true
-        }
+      inquirer.prompt([
+      {
+        type:"input",
+        message: "Username",
+        name: "username"
+      },
+      {
+        type:"input",
+        message: "E-Mail",
+        name: "email"
+      },
+      {
+        type:"password",
+        message: "Password",
+        name: "password"
       }
-    };
-    prompt.get(schema, this.runSignup);
+    ]).then(this.runSignup);
   }
-  runSignup = (err, promptResult) => {
-    promptResult.desiredResponse = "token";
-    Request.post("/account", promptResult).then((result) => {
+  runSignup = (ans: inquirer.Answers) => {
+    let req = {
+      email: ans["email"],
+      username: ans["username"],
+      password: ans["password"],
+      desiredResponse: "token"
+    };
+    Request.post("/account", req).then((result) => {
       if(result.body.token) {
         logger.success("Account successfully created");
         config.set("ApiKey", result.body.token);
-        config.set("Username", promptResult.username);
+        config.set("Username", ans["username"]);
       }
     }, (result) => {
       logger.error(result.error);

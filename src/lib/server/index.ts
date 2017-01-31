@@ -51,7 +51,7 @@ export default class Server {
   run() {
     this.server = http.createServer(this.handleReq);
     this.server.listen(this.port, () => {
-      logger.warn(`Listening on ${this.port}.`);
+      logger.success(`Listening on ${this.port}.`);
       opn(`http://localhost:${this.port}`);
     });
     if(this.watch) {

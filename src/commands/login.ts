@@ -1,4 +1,4 @@
-var prompt = require("prompt");
+import * as inquirer from "inquirer";
 
 import { ICommand, ICommandOptions } from "./command";
 import Request from "../lib/request";
@@ -23,30 +23,31 @@ class Login implements ICommand {
       });
     } else {
       this.trys++;
-      var schema = {
-        properties: {
-          username: {
-            required: true
-          },
-          password: {
-            require: true,
-            hidden: true
-          }
+      let questions = 
+      inquirer.prompt([
+        {
+          type:"input",
+          message: "Username",
+          name: "username"
+        },
+        {
+          type:"password",
+          message: "Password",
+          name: "password"
         }
-      };
-      prompt.get(schema, this.runAuth);
+      ]).then(this.runAuth);
     }
   }
-  runAuth = (err, promptRes) => {
+  runAuth = (answeres: inquirer.Answers) => {
     let result: any;
       Request.post("/session", {
-      user: promptRes.username,
-      password: promptRes.password,
+      user: answeres["username"],
+      password: answeres["password"],
       desiredResponse: "token"
     }).then((result) => {
       if(result.body.token) {
         config.set("ApiKey", result.body.token);
-        config.set("Username", promptRes.username);
+        config.set("Username", answeres["username"]);
         logger.success("Login Successful");
       }
     }, (result) => {

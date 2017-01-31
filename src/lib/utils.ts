@@ -73,3 +73,7 @@ export function readFromParent(currentPath: string, fileName: string): FilePathA
     return readFromParent(path.resolve(currentPath, "../"), fileName);
   }
 }
+
+export async function setTimeoutPromise(time: number): Promise<void> {
+  return new Promise<void>(resolve => setTimeout(resolve, time));
+}

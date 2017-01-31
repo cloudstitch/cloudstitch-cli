@@ -13,7 +13,6 @@ export class Config {
   localFileName = ".cloudstitch";
   constructor() {
     this.homePath = homePath;
-    console.log(typeof readFromParent);
     let fileDetails = readFromParent(process.cwd(), this.localFileName);
     this.localConfig = fileDetails.fileJson || {};
     this.localConfigFile = fileDetails.filePath || path.join(process.cwd(), this.localFileName);

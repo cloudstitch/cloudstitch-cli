@@ -28,8 +28,8 @@ for(var ii in dir) {
 
 doc = `${doc}
 Options:
-  -h --help     Show this screen.
-  --version     Show version.
+  -h --help        Show this screen.
+  -v --version     Show version.
 `;
 
 var packageJson = utils.loadJson(path.join(__dirname, "../package.json"));

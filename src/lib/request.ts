@@ -28,7 +28,7 @@ export default class Request {
     return new Promise<IRequestResult>((resolve, reject) => {
       //TODO this default base url is not final
       let baseUrl = config.get("baseApiEndPoint") || 'https://api.cloudstitch.com/prod';
-      let finalUrl = url.resolve(baseUrl, path);
+      let finalUrl = path.indexOf("http") !== -1 ? path : url.resolve(baseUrl, path);
       let headers = {
         "User-Agent": `${process.title}-cli`
       };

@@ -31,7 +31,6 @@ export class Logger {
     }
     let levelMark = level !== "debug" ? chalk[colorMap[level]](`[${level}]`) : `[${level}]`;
     if(levelMap[configLogLevel] > levelMap["warn"]) {
-      let now = new Date();
       levelMark = `[${timestamp("HH:MM:ss:ms")}]${levelMark}`;
     }
     console[func || level](`${levelMark} ${message}`);
