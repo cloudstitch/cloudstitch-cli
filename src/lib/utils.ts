@@ -51,11 +51,10 @@ export interface FilePathAndContents {
 }
 
 export const homePath = process.env[process.platform === "win32" ? "USERPROFILE" : "HOME"];
-
+  
 export function readFromParent(currentPath: string, fileName: string): FilePathAndContents {
-  //stop at the home dir
-  //TODO test this on windows, perhaps living in C:/dev or simmillar will break this.
-  if(currentPath === homePath) {
+  //stop at the home dir or root just to be safe :)
+  if(currentPath === homePath || currentPath === "/" || /\D:\\$/.exec(currentPath)) {
     return {
       filePath: undefined,
       basePath: undefined,

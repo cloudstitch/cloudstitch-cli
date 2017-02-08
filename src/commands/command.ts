@@ -1,4 +1,6 @@
 
+import Spinner from "../lib/spinner";
+
 export interface ICommand{
   doc: string;
   requiresPkg: boolean;

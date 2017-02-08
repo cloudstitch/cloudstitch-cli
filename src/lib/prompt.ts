@@ -40,7 +40,7 @@ export function prompt(frontEndStack = false) {
       choices: [
         {
           name: "D3 + Handlebars",
-          value: "project-templates/d3-in-a-box"
+          value: "visualizations/d3-bar-chart"
         },
         {
           name: "Dust",
@@ -52,7 +52,7 @@ export function prompt(frontEndStack = false) {
         },
         {
           name: "Handlebars",
-          value: "project-templates/handlebars-widget"
+          value: "project-templates/handlebars-in-a-box"
         },
         {
           name: "Jade",

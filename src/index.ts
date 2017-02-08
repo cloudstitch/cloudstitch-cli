@@ -22,7 +22,7 @@ Usage:
 for(var ii in dir) {
   var d = dir[ii];
   commands[d] = require(path.join(__dirname, `./commands/${d}`));
-  doc = `${doc}  cs ${commands[d].doc}\n`;
+  doc = `${doc}  ${process.title} ${commands[d].doc}\n`;
   logger.info(`found ${d}: ${commands[d].doc}`)
 }
 

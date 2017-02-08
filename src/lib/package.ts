@@ -52,6 +52,7 @@ export class Package {
         invalid = true;
         result.packageMalformed = true;
     }
+    logger.info(`Package detected as invalid(${invalid}) at path: ${this.packageRootPath}`);
     if(!invalid) {
       return invalid;
     } else {

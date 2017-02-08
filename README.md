@@ -1,5 +1,11 @@
 # cloudstitch-cli
 
+## Install
+
+```
+npm install -g @cloudstitch/cli
+```
+
 The Cloudstitch CLI provides command line access to Cloudstitch, as well as a web server to facilitate easy development of widgets.
 
 ## Commands

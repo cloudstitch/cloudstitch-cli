@@ -8,6 +8,7 @@ import { ICommand, ICommandOptions } from "./command";
 import Request from "../lib/request";
 import { instance as logger } from "../lib/logger";
 import Project from "../lib/project";
+import { instance as pkg } from "../lib/package";
 
 const messageInvalidParam = () => {
   logger.error("The user and app do not appear to be valid");
@@ -30,31 +31,31 @@ const messageError = (error: string) => {
 };
 
 class Pull implements ICommand {
-  doc = "pull <user/app> [<folder>] [--force]";
+  doc = "pull [<user/app>] [<folder>] [--force]";
   requiresPkg = false;
   requiresLogin = false;
   async run(options: Object) {
     let userApp = options["<user/app>"];
     let { user, app } = Project.verifyIdentifier(userApp);
-    if(!user || !app) {
+    if(pkg.isInvalid() && (!user || !app)) {
       messageInvalidParam();
       return;
     }
-    let appDir = path.join(process.cwd(), options["<folder>"] || app);
+    if(!pkg.isInvalid() && !user && !app) {
+      user = pkg.get("user");
+      app = pkg.get("app");
+    }
+    let appDir = path.join(process.cwd(), pkg.isInvalid() ? options["<folder>"] || app : "");
     let check;
     try {
-      let check = fs.statSync(appDir);
+      check = fs.statSync(appDir);
       logger.info(`App dir stat: ${JSON.stringify(check)}`)
     } catch(e) {} // if error happens we might be ok
-    if(check && !options["--force"]) {
-      logger.error(`App directory exists: ${app}`);
-      process.exit(1);
-    } else if(check && options["--force"]) {
-      fs.rmdirSync(appDir)
+    if(!check) {
+      fs.mkdirSync(appDir);
     }
-    fs.mkdirSync(appDir);
-    logger.info(`Created app dir ${appDir}`);
-    await Project.pull(appDir, user, app);
+    logger.info(`Detected app dir: ${appDir}`);
+    await Project.pull(appDir, user, app, options["--force"]);
   }
 }
 

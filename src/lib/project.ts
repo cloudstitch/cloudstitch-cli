@@ -5,6 +5,7 @@ import * as crypto from "crypto";
 let Zip = require("jszip");
 import * as JSZip from "jszip";
 import * as Q from "q";
+import { Diff3 } from "@cloudstitch/node-diff3-wrapper";
 
 import Request, { IRequestResult } from "./request";
 import { instance as logger } from "../lib/logger";
@@ -15,6 +16,29 @@ import * as utils from "../lib/utils";
 export interface IProjectDetails {
   user?: string;
   app?: string;
+}
+
+interface ICloneStatusResponse {
+  status: 'never' | 'waiting' | 'progress' | 'success' | 'fail' | 'error';
+  statusDate: number;
+  statusMessage?: string;
+  statusObject?: any;  
+}
+
+type BackendStack = "google" | "microsoft";
+
+interface ICloneRequest {
+  user: string; // e.g. project-templates
+  app: string; // e.g. d3-in-a-box
+  name: string; // e.g., "My new Project"
+  backendStack: BackendStack;
+}
+
+interface ICloneResponse {
+  user: string; // the user who has just initiated a clone
+  app: string; // the appname assigned by cloudstitch to the new app (user doesn't get to choose this!)
+  error?: boolean; // true if there was an error
+  message?: string; // present if there was an error
 }
 
 function _shouldAddFile(file: string, thisHash: string, hashes: any): boolean {
@@ -32,14 +56,23 @@ function _shouldAddFile(file: string, thisHash: string, hashes: any): boolean {
   }
 }
 
-async function _loadHashFile(folder: string): Promise<any> {
+async function _loadHashFile(folder: string, fileContent?: string): Promise<any> {
   let hashFile, hashes;
   try {
-    hashFile = <Buffer> await Q.nfcall(fs.readFile, path.join(folder, "cloudstitch.md5"));
-    hashFile = hashFile.toString("utf-8");
-    logger.info(`loaded md5 file: ${hashFile}`);
+    if(!fileContent) {
+      let hashFilePath = path.join(folder, ".cloudstitch", "cloudstitch.md5");
+      logger.info(`reading hash file ${hashFilePath}`);
+      hashFile = <Buffer> await Q.nfcall(fs.readFile, hashFilePath);
+      hashFile = hashFile.toString("utf-8");
+      logger.info(`loaded md5 file: ${hashFile}`);
+    }
   } catch (e) {} // hash file does not exist
-  if(hashFile && typeof hashFile === "string") {
+  if(fileContent) {
+    logger.info("reading hashes from string");
+    hashFile = fileContent;
+  }
+  logger.info(`Parsing hash file: ${hashFile}`);
+  if(typeof hashFile === "string") {
     hashes = {};
     hashFile.split("\n").forEach((line) => {
       if(line.length > 1) {
@@ -57,6 +90,27 @@ async function _writeNewHashes(file: string, hashes: Object) {
   await Q.nfcall(fs.writeFile, file, hashFile);
 }
 
+function cleanUpDiff(file: string): string {
+  let splitFile = file.split("\n");
+  let result = [];
+  let skip = false;
+  for(let line of splitFile) {
+    if(/\|{7}/.exec(line)) {
+      skip = true;
+    } else if(/={7}/.exec(line)) {
+      skip = false;
+      result.push("=".repeat(8));
+    } else if(/<{7}/.exec(line)) {
+      result.push("<".repeat(8));
+    } else if(/>{7}/.exec(line)) {
+      result.push(">".repeat(8));
+    } else if(!skip) {
+      result.push(line);
+    }
+  }
+  return result.join("\n");
+}
+
 export default class Project {
   static verifyIdentifier(identifier: string): IProjectDetails {
     if(!identifier || identifier.indexOf("/") === -1) {
@@ -72,7 +126,8 @@ export default class Project {
     }
   }
 
-  static async pull(folder: string, user: string, app: string) {
+  static async pull(folder: string, user: string, app: string, force: boolean) {
+    let hashCodes = await _loadHashFile(folder);
     let result;
     try{
       result = await Request.get(`/project/${user}/${app}`);
@@ -86,16 +141,84 @@ export default class Project {
         throw e;
       }
     }
+    try {
+      await Q.nfcall(fs.mkdir, path.join(folder, ".cloudstitch"))
+    } catch(e) {} //don't care if this errors
+    logger.info(`Got responce back from server pull: ${result.res.statusCode}`);
     let fileContent = Buffer.from(result.body, "binary");
-    let zip = await Zip.loadAsync(fileContent);
+    logger.info("Zip responce converted from buffer");
+    let zip;
+    try {
+      zip = await Zip.loadAsync(fileContent);
+    } catch(e) {
+      logger.error(e.message);
+    }
+    logger.info("Zip responce successfully intrpreted");
+    let zipMd5FileContent: string = await zip.file("cloudstitch.md5").async("string");
+    let zipMd5FileHashes = await _loadHashFile(null, zipMd5FileContent);
     zip.forEach(async (filePath, file) => {
+      logger.info(`Processing: ${filePath}`);
       let finalFilePath = path.join(folder, filePath);
-      logger.info(`Created: ${finalFilePath}`);
-      if(file.dir) {
-        fs.mkdirSync(finalFilePath);
+
+      let writeFile = false;
+      if(!hashCodes) {
+        if(file.dir) {
+          fs.mkdirSync(finalFilePath);
+        } else {
+          writeFile = true;
+        }
       } else {
+        if(!file.dir) {
+          let stat;
+          try {
+            stat = fs.statSync(finalFilePath);
+          } catch(e) {}
+          logger.info(`Going to check local file. file exists: ${!!stat}, file has old hash: ${!!hashCodes[filePath]}, have past file hash: ${filePath !== "cloudstitch.md5"}`);
+          if(stat && hashCodes[filePath] && filePath !== "cloudstitch.md5") { 
+            let oldFileContent = fs.readFileSync(finalFilePath);
+            let fileHash = crypto.createHash("md5").update(oldFileContent).digest("hex");
+            let modifedLocally = fileHash !== hashCodes[filePath];
+            let modifiedRemotely = hashCodes[filePath] !== zipMd5FileHashes[filePath];
+            logger.debug(`checking hash ${filePath} local: ${modifedLocally}, remote ${modifiedRemotely}`);
+            if(modifedLocally && modifiedRemotely) {
+              //merge
+              let originalFilePath = path.join(folder, ".cloudstitch", filePath);
+              let a = oldFileContent.toString("utf-8");
+              let b = (<Buffer>await file.async("nodebuffer")).toString("utf-8");
+              let diff: string;
+              try {
+                logger.info(`Calling: diff3 -m ${finalFilePath} ${originalFilePath} - stdin: {b}`)
+                diff = await Diff3.diffM(finalFilePath, originalFilePath, "-", b);
+              } catch(e) {
+                logger.error(e);
+              }
+
+              if(diff) {
+                diff = cleanUpDiff(diff);
+                if(diff.indexOf("=".repeat(8)) !== -1) {
+                  logger.error(`Conflict in ${filePath} please resolve manually`);
+                } else {
+                  logger.warn(`Conflict in ${filePath} resolved automatically`);
+                }
+                fs.writeFileSync(finalFilePath, diff);
+              }
+            }
+          } else {
+            writeFile = true;
+          }
+        }
+      }
+      if(writeFile) {
         let fileContent = await file.async("nodebuffer");
-        fs.writeFileSync(finalFilePath, fileContent);
+        if(filePath !== "cloudstitch.md5") {
+          fs.writeFileSync(finalFilePath, fileContent);
+          logger.info(`Wrote content of file: ${finalFilePath}`);
+        }
+        let cacheFilePath = path.join(folder, ".cloudstitch", filePath);
+        fs.writeFileSync(cacheFilePath, fileContent);
+        logger.info(`Wrote content of file: ${cacheFilePath}`);
+      } else {
+        logger.debug(`skipping ${filePath}`);
       }
     });
   }
@@ -165,26 +288,35 @@ export default class Project {
     );
   }
 
-  static async clone(title: string, from: string, backend: "google" | "microsoft"): Promise<string> {
-    //TODO get the final URL for this.
-    let req = {
-      title,
-      backend,
-      fromProject: from
-    };
-    let res = await Request.post("http://cloudstitch.com/api/clone", req);
-    //TODO verify this data responce pattern
-    let appName = res.body.appName;
+  static async clone(name: string, from: string, backendStack: BackendStack): Promise<string> {
+    let fromParts = from.split("/"),
+        user = fromParts[0],
+        app = fromParts[1],
+        req: ICloneRequest = {
+          name,
+          user,
+          app,
+          backendStack
+        };
+      let res: IRequestResult;
+      try {
+        res = await Request.post(`/usr/${user}/${app}/clone`, req);
+      } catch(e) {
+        throw new Error("Clone Error: " + e.message);
+      }
+    let cloneRes: ICloneResponse = res.body,
+        appName = cloneRes.app,
+        appUsername = cloneRes.user;
 
     let finished = false;
     while(!finished) {
       await utils.setTimeoutPromise(500);
-      // TODO get this status check for this url
-      let statusCheck = await Request.get(
-        `http://cloudstitch.com/api/cloneStatus/${config.get("Username")}/${appName}`
-      );
-      //TODO verify this status result patern
-      finished = statusCheck.body.finished;
+      let statusCheck = await Request.get(`/user/${appUsername}/app/${appName}/status`);
+      let cloneStatus: ICloneStatusResponse = statusCheck.body;
+      finished = cloneStatus.status === "success";
+      if(cloneStatus.status === "fail" || cloneStatus.status === "error") {
+        throw new Error(cloneStatus.statusMessage);
+      }
     }
     return appName;
   }

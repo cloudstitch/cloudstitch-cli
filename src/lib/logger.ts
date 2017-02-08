@@ -50,6 +50,9 @@ export class Logger {
   success(message) {
     this._log("success", message, "log");
   }
+  shouldSpin(): boolean {
+    return levelMap[configLogLevel] <= 1;
+  }
 
 }
 

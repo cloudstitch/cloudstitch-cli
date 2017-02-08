@@ -57,7 +57,7 @@ export default class Request {
         } else {
           logger.info(`Res from ${method}:${finalUrl} => ${res.statusCode}`);
           if(res.statusCode >= 200 && res.statusCode < 400) {
-            logger.info(`Res detected success from ${method}:${finalUrl} => content length ${body.length}`)
+            logger.info(`Res detected success from ${method}:${finalUrl} => content length ${body.length < 1000 ? body : body.length}`)
             if(res.headers["content-type"] === "application/json" && typeof body === "string") {
               body = JSON.parse(body);
             }
@@ -67,7 +67,7 @@ export default class Request {
             });
             return;
           } else {
-            logger.info(`Res detected error from ${method}:${finalUrl} => content length: ${body.length}`)
+            logger.info(`Res detected error from ${method}:${finalUrl} => content length: ${body.length < 1000 ? body : body.length}`)
             reject({
               res,
               error: body.error
