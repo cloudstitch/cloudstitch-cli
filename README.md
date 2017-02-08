@@ -15,8 +15,11 @@ The following commands can be invoked by typing `cloudstitch <command>` on the c
 No login required:
 
 * `pull user/app` - Pulls down files to local disk
+* `clone user/app` - Clones the `user/app` project into your own user namespace (ie. `yourUser/app`) and pulls down the files to the current directory `app`;
+* `create` - Helps you create a new app based on one of seven base project types.
 * `serve` - Serves the current directory as a Cloudstitch widget.
-* `login` - Helps you log into Cloudstitch save your API key to ~/.cloudstitch
+* `signup` - Helps you create and log into a new Cloudstitch account
+* `login` - Helps you log into Cloudstitch save your API key to ~/.config/cloudstitch.json
  
 Login required:
 
@@ -25,17 +28,17 @@ Login required:
 
 ## Cloudstitch Package format 
 
-Cloudstitch project record information in a `package.json` file stored at the project root, under the key `cloudstitch`.
+Cloudstitch project record information in a `cloudstitch.json` file stored at the project root.
 
 Available properties:
 
 * `user` - The username of the widget instance on Cloudstitch
 * `app` - The appname of the widget instance on Cloudstitch
-* `kind` - The type of widget (`widget` | `jekyll`)
+* `kind` - The type of widget (`widget` | `jekyll`, etc.)
 
 ## Authentication and Configuration
 
-Your command line configuration, including API key, is stored in file called `.cloudstitch`. The CLI looks for that file in the current directory, then its parent, then its parent, all the way to the drive root. As a last resort, it looks in `~/.cloudstitch`.
+Your command line configuration, including API key, is stored in file called `~/.config/cloudstitch.json`.
 
 The format of the config file is:
 
