@@ -26,6 +26,10 @@ export default class Request {
   }
   static _makeRequest(method: string, path: string, body?: any, json = false, contentType?: string): Promise<IRequestResult> {
     return new Promise<IRequestResult>((resolve, reject) => {
+      if(path.indexOf("/") === 0) {
+        //remove leading slash
+        path = path.slice(1, path.length);
+      }
       //TODO this default base url is not final
       let baseUrl = config.get("baseApiEndPoint") || 'https://api.cloudstitch.com/prod';
       let finalUrl = path.indexOf("http") !== -1 ? path : url.resolve(baseUrl, path);

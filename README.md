@@ -15,8 +15,6 @@ The following commands can be invoked by typing `cloudstitch <command>` on the c
 No login required:
 
 * `pull user/app` - Pulls down files to local disk
-* `clone user/app` - Clones the `user/app` project into your own user namespace (ie. `yourUser/app`) and pulls down the files to the current directory `app`;
-* `create` - Helps you create a new app based on one of seven base project types.
 * `serve` - Serves the current directory as a Cloudstitch widget.
 * `signup` - Helps you create and log into a new Cloudstitch account
 * `login` - Helps you log into Cloudstitch save your API key to ~/.config/cloudstitch.json
@@ -24,6 +22,7 @@ No login required:
 Login required:
 
 * `clone <user>/<app> [folder]` - Clones the user/app on Cloudstitch and does a pull into `[folder]`. If `[folder]` is not specificed, creates one named `<app>`. 
+* `create` - Helps you create a new app based on one of seven base project types.
 * `push [filename]` - Pushes `[filename]` (default: all files) to the remote Cloudstitch project.
 
 ## Cloudstitch Package format 
