@@ -130,7 +130,7 @@ export default class Project {
     let hashCodes = await _loadHashFile(folder);
     let result;
     try{
-      result = await Request.get(`/project/${user}/${app}`);
+      result = await Request.get(`/user/${user}/app/${app}/pull`);
     } catch(e) {
       //TODO Check that these are happening
       if(e.statusCode && e.statusCode === 404) {
