@@ -300,8 +300,9 @@ export default class Project {
         };
       let res: IRequestResult;
       try {
-        res = await Request.post(`/usr/${user}/${app}/clone`, req);
+        res = await Request.post(`/app/clone`, req);
       } catch(e) {
+        console.log("Got error calling clone", e);
         throw new Error("Clone Error: " + e.message);
       }
     let cloneRes: ICloneResponse = res.body,

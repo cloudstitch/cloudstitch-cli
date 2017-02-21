@@ -33,6 +33,7 @@ class Clone implements ICommand {
       .then(this.startPull)
       .catch((error) => {
         this.spinner.stop();
+        console.log(error);
         logger.error(error.message || error);
       });
   }
