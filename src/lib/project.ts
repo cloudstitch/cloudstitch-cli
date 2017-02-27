@@ -246,6 +246,9 @@ export default class Project {
         let fileContent: Buffer = <Buffer> await Q.nfcall(fs.readFile, path.join(folder, file)),
             dirDifference = folder.replace(baseDir, ""), //get relative path
             thisHash = crypto.createHash("md5").update(fileContent).digest("hex");
+        if(fileContent.toString("utf-8").indexOf("<".repeat(8)) !== -1) {
+          throw new Error(`It looks like there is a merge conflict in file ${file}, please manualy resolve this before pushing.`);
+        }
         if(dirDifference && dirDifference.charAt(0) === "/") {
           dirDifference = dirDifference.slice(1); //remove leading slash
         }
