@@ -9,6 +9,7 @@ import Request from "../lib/request";
 import { instance as logger } from "../lib/logger";
 import Project from "../lib/project";
 import { instance as pkg } from "../lib/package";
+import Spinner from "../lib/spinner";
 
 const messageInvalidParam = () => {
   logger.error("The user and app do not appear to be valid");
@@ -34,6 +35,10 @@ class Pull implements ICommand {
   doc = "pull [<user/app>] [<folder>] [--force]";
   requiresPkg = false;
   requiresLogin = false;
+  spinner: Spinner;
+  constructor() {
+    this.spinner = new Spinner();
+  }
   async run(options: Object) {
     let userApp = options["<user/app>"];
     let { user, app } = Project.verifyIdentifier(userApp);
@@ -55,7 +60,16 @@ class Pull implements ICommand {
       fs.mkdirSync(appDir);
     }
     logger.info(`Detected app dir: ${appDir}`);
-    await Project.pull(appDir, user, app, options["--force"]);
+
+    try {
+      this.spinner.start();
+      await Project.pull(appDir, user, app, options["--force"]);
+      this.spinner.stop();
+      logger.success("-- Ok --")
+    } catch(e) {
+      this.spinner.stop();
+      logger.error(e);
+    }
   }
 }
 

@@ -6,19 +6,32 @@ import * as Q from "q";
 import { ICommand, ICommandOptions } from "./command";
 import Project from "../lib/project"
 import { instance as logger } from "../lib/logger";
+import request from "../lib/request";
+import { instance as pkg } from "../lib/package";
+import Spinner from "../lib/spinner";
 
 class Push implements ICommand {
   doc = "push [<folder>]";
   requiresPkg = true;
   requiresLogin = true;
+  spinner: Spinner;
+  constructor() {
+    this.spinner = new Spinner();
+  }
   async run(options: Object) {
-    let basePath = process.cwd();
+    let basePath = pkg.packageRootPath || process.cwd();
     if(options["<folder>"]) {
       basePath = path.resolve(basePath, options["<folder>"]);
     }
     logger.info(`Package root directory detected: ${basePath}`);
-    let zip: Buffer = <Buffer> await Project.zip(basePath);
-    await Q.nfcall(fs.writeFile, "test.zip", zip);
+    try {
+      let result = await Project.push(basePath, pkg.get("user"), pkg.get("app"));
+      this.spinner.stop();
+      logger.success("-- Ok --");
+    } catch(e) {
+      this.spinner.stop();
+      logger.error(e);
+    }
   }
 }
 

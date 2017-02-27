@@ -25,9 +25,17 @@ if(!configLogLevel) {
 }
 
 export class Logger {
-  _log(level: string, message: string, func?: string) {
+  _log(level: string, message: any, func?: string) {
     if(levelMap[level] > levelMap[configLogLevel]) {
       return;
+    }
+    message = <any>message;
+    while(typeof message !== "string" ) {
+      message = message.error
+        || message.message
+        || message.Message
+        || message.Error
+        || JSON.stringify(message);
     }
     let levelMark = level !== "debug" ? chalk[colorMap[level]](`[${level}]`) : `[${level}]`;
     if(levelMap[configLogLevel] > levelMap["warn"]) {

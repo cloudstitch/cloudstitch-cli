@@ -130,7 +130,7 @@ export default class Project {
     let hashCodes = await _loadHashFile(folder);
     let result;
     try{
-      result = await Request.get(`/user/${user}/app/${app}/pull`);
+      result = await Request.get(`/project/${user}/${app}/pull`);
     } catch(e) {
       //TODO Check that these are happening
       if(e.statusCode && e.statusCode === 404) {
@@ -228,7 +228,8 @@ export default class Project {
       baseDir = folder;
     }
     let files: string[] = <string[]> await Q.nfcall(fs.readdir, folder);
-    files = files.filter(file => file !== "cloudstitch.md5");
+    files = files.filter(file => file !== "cloudstitch.md5" && file !== ".cloudstitch");
+    logger.info(`Found files: ${JSON.stringify(files)}`);
     let top = false;
     if(!zip) {
       zip = new JSZip();
@@ -280,9 +281,10 @@ export default class Project {
 
   static async push(folder: string, user: string, app:string): Promise<IRequestResult> {
     let zip: Buffer = <Buffer> await Project.zip(folder);
-    return Request.post(
-      `/project/${user}/${app}`,
-      zip.toString("binary"),
+    fs.writeFileSync(path.join(process.cwd(), "output.zip"), zip);
+    return Request.put(
+      `/project/${user}/${app}/push`,
+      zip,
       false,
       "application/zip"
     );
@@ -300,7 +302,7 @@ export default class Project {
         };
       let res: IRequestResult;
       try {
-        res = await Request.post(`/usr/${user}/${app}/clone`, req);
+        res = await Request.post(`/project/${user}/${app}/clone`, req);
       } catch(e) {
         throw new Error("Clone Error: " + e.message);
       }
@@ -311,7 +313,7 @@ export default class Project {
     let finished = false;
     while(!finished) {
       await utils.setTimeoutPromise(500);
-      let statusCheck = await Request.get(`/user/${appUsername}/app/${appName}/status`);
+      let statusCheck = await Request.get(`/project/${appUsername}/${appName}/clone-status`);
       let cloneStatus: ICloneStatusResponse = statusCheck.body;
       finished = cloneStatus.status === "success";
       if(cloneStatus.status === "fail" || cloneStatus.status === "error") {
