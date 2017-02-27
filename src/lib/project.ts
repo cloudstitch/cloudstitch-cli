@@ -268,10 +268,9 @@ export default class Project {
     }
     if(top) {
       if(Object.keys(zip.files).length === 0) {
-        logger.warn("There does not seem to be any change.");
-        return null;
+        throw new Error("There does not seem to be any changes, nothing to do.");
       } else {
-        await _writeNewHashes(`${folder}/cloudstitch.md5`, newHashes);
+        await _writeNewHashes(`${folder}/.cloudstitch/cloudstitch.md5`, newHashes);
         return zip.generateAsync({
           type: "nodebuffer",
           compression: "DEFLATE",
@@ -284,8 +283,7 @@ export default class Project {
 
   static async push(folder: string, user: string, app:string): Promise<IRequestResult> {
     let zip: Buffer = <Buffer> await Project.zip(folder);
-    fs.writeFileSync(path.join(process.cwd(), "output.zip"), zip);
-    return Request.put(
+    return await Request.put(
       `/project/${user}/${app}/push`,
       zip,
       false,

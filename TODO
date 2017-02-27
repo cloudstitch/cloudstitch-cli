@@ -1,4 +1,3 @@
 TODO:
 Check before push if push is ok (are there conflicts), this will require new api method
-After successful push update .cloudstitch/cloudstitch.md5 with updated hash values
-Before push check for merge conflict markers
+handle stack changes via cloudstitch.json
