@@ -158,11 +158,9 @@ export default class Project {
       await Q.nfcall(fs.mkdir, path.join(folder, ".cloudstitch"))
     } catch(e) {} //don't care if this errors
     logger.info(`Got responce back from server pull: ${result.res.statusCode}`);
-    let fileContent = Buffer.from(result.body, "binary");
-    logger.info("Zip responce converted from buffer");
     let zip;
     try {
-      zip = await Zip.loadAsync(fileContent);
+      zip = await Zip.loadAsync(result.body);
     } catch(e) {
       logger.error(e.message);
     }
