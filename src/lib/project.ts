@@ -136,10 +136,9 @@ export default class Project {
     try{
       result = await Request.get(`/project/${user}/${app}/pull`);
     } catch(e) {
-      //TODO Check that these are happening
-      if(e.statusCode && e.statusCode === 404) {
+      if(e.res.statusCode && e.res.statusCode === 404) {
         throw new Error("Project not found");
-      } else if(e.statusCode && e.statusCode === 401) {
+      } else if(e.res.statusCode && e.res.statusCode === 401) {
         throw new Error("Permission denied");
       } else {
         throw e;
@@ -191,7 +190,7 @@ export default class Project {
               let b = (<Buffer>await file.async("nodebuffer")).toString("utf-8");
               let diff: string;
               try {
-                logger.info(`Calling: diff3 -m ${finalFilePath} ${originalFilePath} - stdin: {b}`)
+                logger.info(`Calling: diff3 -m ${finalFilePath} ${originalFilePath} - stdin: ${b}`)
                 diff = await Diff3.diffM(finalFilePath, originalFilePath, "-", b);
               } catch(e) {
                 logger.error(e);
@@ -286,23 +285,18 @@ export default class Project {
   }
 
   static async push(folder: string, user: string, app:string): Promise<IRequestResult> {
-    let zip: Buffer = <Buffer> await Project.zip(folder);
-    let hashes = await _loadHashFile(path.join(folder, ".cloudstitch", "cloudstitch.md5"));
-    hashes = Object.keys(hashes).map((key) => {
+    let hashes = await _loadHashFile(folder),
+    fileHashes = Object.keys(hashes).map((key) => {
       return {
         key,
         hash: hashes[key]
       };
-    })
-    let canPush = await Request.put(
-      `project/${user}/${app}/`,
-      {
-        fileHashes: hashes
-      }
-    );
+    });
+    let canPush = await Request.put(`project/${user}/${app}/push-check`, { fileHashes });
     if(!canPush.body.valid) {
       throw new Error("There were changes made on the server since your last pull. Pull now, then you will be able to push.");
     }
+    let zip: Buffer = <Buffer> await Project.zip(folder);
     return await Request.put(
       `/project/${user}/${app}/push`,
       zip,

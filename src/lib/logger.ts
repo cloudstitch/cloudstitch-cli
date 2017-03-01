@@ -31,9 +31,9 @@ export class Logger {
     }
     message = <any>message;
     while(typeof message !== "string" ) {
-      message = message.error
-        || message.message
+      message = message.message
         || message.Message
+        || message.error
         || message.Error
         || JSON.stringify(message);
     }
