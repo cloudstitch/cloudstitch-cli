@@ -131,6 +131,16 @@ export default class Project {
   }
 
   static async pull(folder: string, user: string, app: string, force: boolean) {
+    let checkAppDir;
+    try {
+      checkAppDir = fs.statSync(folder);
+      logger.info(`App dir stat: ${JSON.stringify(checkAppDir)}`)
+    } catch(e) {} // if error happens we might be ok
+    if(!checkAppDir) {
+      fs.mkdirSync(folder);
+    }
+    logger.info(`Detected app dir: ${folder}`);
+
     let hashCodes = await _loadHashFile(folder);
     let result;
     try{

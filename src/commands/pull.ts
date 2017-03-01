@@ -51,16 +51,6 @@ class Pull implements ICommand {
       app = pkg.get("app");
     }
     let appDir = path.join(process.cwd(), pkg.isInvalid() ? options["<folder>"] || app : "");
-    let check;
-    try {
-      check = fs.statSync(appDir);
-      logger.info(`App dir stat: ${JSON.stringify(check)}`)
-    } catch(e) {} // if error happens we might be ok
-    if(!check) {
-      fs.mkdirSync(appDir);
-    }
-    logger.info(`Detected app dir: ${appDir}`);
-
     try {
       this.spinner.start();
       await Project.pull(appDir, user, app, options["--force"]);

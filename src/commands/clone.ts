@@ -30,7 +30,7 @@ class Clone implements ICommand {
     
     Project
       .clone(ans["title"], this.fromProject, ans["backend"])
-      .then(this.startPull)
+      .then(this.startPull.bind(this))
       .catch((error) => {
         this.spinner.stop();
         logger.error(error.message || error);
