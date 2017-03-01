@@ -20,13 +20,13 @@ class Create implements ICommand {
   }
   run(options: ICommandOptions) {
     this.toFolder = options["<folder>"];
-    prompt(true).then(this.startCreate);
+    prompt(true).then(this.startCreate.bind(this));
   }
   startCreate(ans: Answers) {
     this.spinner.start();
     Project
-     .clone(ans["title"], ans["stack"], ans["backend"])
-     .then(this.startPull)
+     .clone(ans["title"], "project-templates/starter-widget", ans["backend"], ans["stack"])
+     .then(this.startPull.bind(this))
      .catch((error) => {
        logger.error(error.message);
      });

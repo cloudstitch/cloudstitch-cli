@@ -25,18 +25,22 @@ interface ICloneStatusResponse {
   statusObject?: any;  
 }
 
-type BackendStack = "google" | "microsoft";
+export type BackendStack = "google" | "microsoft";
+export type FrontendStack = "d3" | "dust" | "ejs" | "handlebars" | "jade" | "mustache" | "polymer";
 
-interface ICloneRequest {
-  user: string; // e.g. project-templates
-  app: string; // e.g. d3-in-a-box
+export interface ICloneRequest {
+  fromUser: string; // e.g. project-templates
+  fromApp: string; // e.g. d3-in-a-box
+  toUser?: string;
   name: string; // e.g., "My new Project"
+  private?: boolean;
   backendStack: BackendStack;
+  frontEnd?: FrontendStack; // The web interface will send this.
 }
 
-interface ICloneResponse {
-  user: string; // the user who has just initiated a clone
-  app: string; // the appname assigned by cloudstitch to the new app (user doesn't get to choose this!)
+export interface ICloneResponse {
+  user?: string; // the user who has just initiated a clone
+  app?: string; // the appname assigned by cloudstitch to the new app (user doesn't get to choose this!)
   error?: boolean; // true if there was an error
   message?: string; // present if there was an error
 }
@@ -283,6 +287,22 @@ export default class Project {
 
   static async push(folder: string, user: string, app:string): Promise<IRequestResult> {
     let zip: Buffer = <Buffer> await Project.zip(folder);
+    let hashes = await _loadHashFile(path.join(folder, ".cloudstitch", "cloudstitch.md5"));
+    hashes = Object.keys(hashes).map((key) => {
+      return {
+        key,
+        hash: hashes[key]
+      };
+    })
+    let canPush = await Request.put(
+      `project/${user}/${app}/`,
+      {
+        fileHashes: hashes
+      }
+    );
+    if(!canPush.body.valid) {
+      throw new Error("There were changes made on the server since your last pull. Pull now, then you will be able to push.");
+    }
     return await Request.put(
       `/project/${user}/${app}/push`,
       zip,
@@ -291,16 +311,19 @@ export default class Project {
     );
   }
 
-  static async clone(name: string, from: string, backendStack: BackendStack): Promise<string> {
+  static async clone(name: string, from: string, backendStack: BackendStack, frontEnd?: FrontendStack): Promise<string> {
     let fromParts = from.split("/"),
         user = fromParts[0],
         app = fromParts[1],
         req: ICloneRequest = {
+          fromUser: user,
+          fromApp: app,
           name,
-          user,
-          app,
           backendStack
         };
+      if(frontEnd) {
+        req.frontEnd = frontEnd;
+      }
       let res: IRequestResult;
       try {
         res = await Request.post(`/project/${user}/${app}/clone`, req);
@@ -316,6 +339,7 @@ export default class Project {
       await utils.setTimeoutPromise(500);
       let statusCheck = await Request.get(`/project/${appUsername}/${appName}/clone-status`);
       let cloneStatus: ICloneStatusResponse = statusCheck.body;
+      logger.info(`clone status ${cloneStatus.status}`)
       finished = cloneStatus.status === "success";
       if(cloneStatus.status === "fail" || cloneStatus.status === "error") {
         throw new Error(cloneStatus.statusMessage);

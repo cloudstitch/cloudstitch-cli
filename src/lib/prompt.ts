@@ -40,34 +40,64 @@ export function prompt(frontEndStack = false) {
       choices: [
         {
           name: "D3 + Handlebars",
-          value: "visualizations/d3-bar-chart"
+          value: "d3"
         },
         {
           name: "Dust",
-          value: "project-templates/dust-in-a-box"
+          value: "dust"
         },
         {
           name: "EJS",
-          value: "project-templates/ejs-in-a-box"
+          value: "ejs"
         },
         {
           name: "Handlebars",
-          value: "project-templates/handlebars-in-a-box"
+          value: "handlebars"
         },
         {
           name: "Jade",
-          value: "project-templates/jade-in-a-box"
+          value: "jade"
         },
         {
           name: "Mustache",
-          value: "project-templates/mustache-in-a-box"
+          value: "mustache"
         },
         {
           name: "Polymer",
-          value: "project-templates/polymer-in-a-box"
+          value: "polymer"
         }
       ]
     });
   }
   return inquirer.prompt(questions);
 }
+
+/*
+    if (lio.event.frontEnd && (lio.event.fromUser == 'project-templates') && (lio.event.fromApp == 'starter-widget')) {
+      switch (lio.event.frontEnd) {
+        case 'd3':
+          lio.event.fromUser = 'visualizations';
+          lio.event.fromApp = 'd3-bar-chart';
+          break;
+        case 'dust':
+          lio.event.fromApp = 'dust-in-a-box';
+          break;
+        case 'ejs':
+          lio.event.fromApp = 'ejs-in-a-box';
+          break;
+        case 'handlebars':
+          lio.event.fromApp = 'handlebars-in-a-box';
+          break;
+        case 'jade':
+          lio.event.fromApp = 'jade-in-a-box';
+          break;
+        case 'mustache':
+          lio.event.fromApp = 'mustache-in-a-box';
+          break;
+        case 'polymer':
+          lio.event.fromApp = 'polymer-in-a-box';
+          break;
+        default:
+          lio.event.fromApp = 'handlebars-in-a-box';
+      }
+*/
