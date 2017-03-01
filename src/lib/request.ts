@@ -52,7 +52,6 @@ export default class Request {
       };
       logger.debug(`[${method}]: ${finalUrl}`)
       request(req, (err: any, res: request.RequestResponse, body: any) => {
-        console.log(body);
         if(res && res.headers["content-type"] === "application/json" && typeof body === "string" && body.length !== 0) {
           body = JSON.parse(body);
         }
