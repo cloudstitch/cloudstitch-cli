@@ -1,6 +1,6 @@
 {
   "name": "@cloudstitch/cli",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "private": false,
   "license": "MIT",
   "repository": "https://github.com/cloudstitch/cloudstitch-cli",
@@ -28,7 +28,8 @@
   "files": [
     "LICENSE",
     "README.md",
-    "release/"
+    "release/",
+    "bin/"
   ],
   "dependencies": {
     "@cloudstitch/node-diff3-wrapper": "^0.2.1",
