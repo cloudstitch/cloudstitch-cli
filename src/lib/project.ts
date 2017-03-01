@@ -325,15 +325,10 @@ export default class Project {
           name,
           backendStack
         };
-      if(frontEnd) {
-        req.frontEnd = frontEnd;
-      }
-      let res: IRequestResult;
-      try {
-        res = await Request.post(`/project/${user}/${app}/clone`, req);
-      } catch(e) {
-        throw new Error("Clone Error: " + e.message);
-      }
+    if(frontEnd) {
+      req.frontEnd = frontEnd;
+    }
+    let res: IRequestResult = await Request.post(`/project/${user}/${app}/clone`, req);
     let cloneRes: ICloneResponse = res.body,
         appName = cloneRes.app,
         appUsername = cloneRes.user;

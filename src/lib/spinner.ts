@@ -6,7 +6,7 @@ export default class Spinner {
   spinner: CliSpinner;
   constructor() {
     this.spinner = new CliSpinner("Working ...");
-    this.spinner.setSpinnerString(18);
+    this.spinner.setSpinnerString(1);
   }
   start() {
     if(logger.shouldSpin()) {

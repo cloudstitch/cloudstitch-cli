@@ -33,7 +33,7 @@ class Clone implements ICommand {
       .then(this.startPull.bind(this))
       .catch((error) => {
         this.spinner.stop();
-        logger.error(error.message || error);
+        logger.error(error.body || error.message || error);
       });
   }
   startPull(appName: string) {
@@ -45,7 +45,7 @@ class Clone implements ICommand {
         logger.success(`App cloned to ${desination}`)
       }).catch((error) => {
         this.spinner.stop();
-        logger.error(error.message || error);
+        logger.error(error.body || error.message || error);
       });
   }
 } 

@@ -52,6 +52,7 @@ export default class Request {
       };
       logger.debug(`[${method}]: ${finalUrl}`)
       request(req, (err: any, res: request.RequestResponse, body: any) => {
+        console.log(body);
         if(res && res.headers["content-type"] === "application/json" && typeof body === "string" && body.length !== 0) {
           body = JSON.parse(body);
         }
@@ -65,18 +66,16 @@ export default class Request {
           logger.info(`Res from ${method}:${finalUrl} => ${res.statusCode}`);
           if(res.statusCode >= 200 && res.statusCode < 400) {
             logger.info(`Res detected success from ${method}:${finalUrl} => content length ${body.length < 1000 ? body : body.length}`)
-            resolve({
+            return resolve({
               res,
               body
             });
-            return;
           } else {
             logger.info(`Res detected error from ${method}:${finalUrl} => content length: ${body.length < 1000 ? body : body.length}`)
-            reject({
+            return reject({
               res,
-              error: body.error || body
+              body: body
             });
-            return;
           }
         }
       });
