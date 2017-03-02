@@ -42,6 +42,9 @@ class Pull implements ICommand {
   async run(options: Object) {
     let userApp = options["<user/app>"];
     let { user, app } = Project.verifyIdentifier(userApp);
+    if(!userApp && pkg.isInvalid()) {
+      return logger.usage("Usage: pull user/app");
+    }
     if(pkg.isInvalid() && (!user || !app)) {
       messageInvalidParam();
       return;

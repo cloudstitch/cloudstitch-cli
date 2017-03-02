@@ -7,12 +7,14 @@ let colorMap = {
   "success": "green",
   "error": "red",
   "warn": "yellow",
-  "info": "blue"
+  "info": "blue",
+  "usage": "yellow"
 }
 
 let levelMap = {
   "error": 0,
   "warn": 1,
+  "usage": 1,
   "success": 1,
   "debug": 2,
   "info": 3
@@ -41,7 +43,10 @@ export class Logger {
     if(levelMap[configLogLevel] > levelMap["warn"]) {
       levelMark = `[${timestamp("HH:MM:ss:ms")}]${levelMark}`;
     }
-    console[func || level](`${levelMark} ${message}`);
+    if(level !== "usage") {
+      message = `${levelMark} ${message}`;
+    }
+    console[func || level](message);
   }
   error(message) {
     this._log("error", message);
@@ -57,6 +62,9 @@ export class Logger {
   }
   success(message) {
     this._log("success", message, "log");
+  }
+  usage(message) {
+    this._log("usage", message, "error");
   }
   shouldSpin(): boolean {
     return levelMap[configLogLevel] <= 1;
