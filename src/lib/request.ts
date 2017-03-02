@@ -31,7 +31,7 @@ export default class Request {
         path = path.slice(1, path.length);
       }
       //TODO this default base url is not final
-      let baseUrl = config.get("baseApiEndPoint") || 'https://mdpkhs79aa.execute-api.us-west-2.amazonaws.com/staging2/';
+      let baseUrl = config.get("baseApiEndPoint") || 'https://hdvh2pvekj.execute-api.us-west-2.amazonaws.com/production/';
       let finalUrl = path.indexOf("http") !== -1 ? path : url.resolve(baseUrl, path);
       let headers = {
         "User-Agent": `${process.title}-cli`
