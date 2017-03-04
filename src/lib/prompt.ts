@@ -72,6 +72,44 @@ export function prompt(frontEndStack = false) {
   return inquirer.prompt(questions);
 }
 
+export function promptUse() {
+  let questions = [
+    {
+      type: 'list',
+      name: 'environment',
+      message: 'Where do you want to use this widget?',
+      choices: [
+        {
+          name: "On an HTML Page",
+          value: "html"
+        },
+        {
+          name: "In an IFrame",
+          value: "iframe"
+        },
+        {
+          name: "In WordPress",
+          value: "wordpress"
+        },
+        {
+          name: "In SquareSpace",
+          value: "squarespace"
+        },
+        {
+          name: "In Weebly",
+          value: "weebly"
+        },
+        {
+          name: "In Google Sites",
+          value: "googlesites"
+        }
+      ]
+    }
+  ];
+  return inquirer.prompt(questions);
+}
+
+
 /*
     if (lio.event.frontEnd && (lio.event.fromUser == 'project-templates') && (lio.event.fromApp == 'starter-widget')) {
       switch (lio.event.frontEnd) {
