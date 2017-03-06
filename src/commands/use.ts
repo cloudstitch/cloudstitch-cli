@@ -20,15 +20,7 @@ class Use implements ICommand {
   constructor() {
   }
   run(options: ICommandOptions) {
-
-    // HELP(ethan)
-    //  I feel like I'm using your idioms wrong here..
-    //  I want to load the package in cwd or in the specified optional folder
-    let basePath = pkg.packageRootPath || process.cwd();
-    if(options["<folder>"]) {
-      basePath = path.resolve(basePath, options["<folder>"]);
-    }
-    this.package = new Package(basePath);
+    this.package = pkg.isInvalid() ? new Package(path.join(process.cwd(), options["<folder>"])) : pkg;
     promptUse().then(this.provideHelp.bind(this));
   }
   provideHelp(ans: Answers) {  
@@ -44,7 +36,7 @@ ${chalk.green.bold('To place this widget on a web page:')}
 ${chalk.green('1) Paste the following code into the <HEAD> element:')}
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/webcomponentsjs/0.7.13/webcomponents-lite.min.js"></script>
-<link rel="import" href="https://components.cloudstitch.com/cloudstitch-$VARIANT.html" />
+<link rel="import" href="https://components.cloudstitch.com/cloudstitch-${variant}.html" />
 
 ${chalk.green('2) Paste the following code where the widget should appear:')}
 
