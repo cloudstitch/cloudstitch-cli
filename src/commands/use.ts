@@ -27,7 +27,6 @@ class Use implements ICommand {
     var user = this.package.get('user');
     var app = this.package.get('app');
     var variant = this.package.get('variant');
-    console.log(ans);
     switch (ans['environment']) {
       case 'html':
         console.log(`
