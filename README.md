@@ -18,6 +18,7 @@ No login required:
 * `serve` - Serves the current directory as a Cloudstitch widget.
 * `signup` - Helps you create and log into a new Cloudstitch account
 * `login` - Helps you log into Cloudstitch save your API key to ~/.config/cloudstitch.json
+* `use [<folder>]` - Provides usage information base of your widget
  
 Login required:
 
