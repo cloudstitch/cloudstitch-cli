@@ -28,6 +28,21 @@ interface ICloneStatusResponse {
 export type BackendStack = "google" | "microsoft";
 export type FrontendStack = "d3" | "dust" | "ejs" | "handlebars" | "jade" | "mustache" | "polymer";
 
+export type PublishDefenition = {
+  repoUrl: string;
+  repoBranch: string;
+  exports: {
+    sheet?: {
+      export: boolean;
+      repoPath: string;
+    },
+    files?: {
+      export: boolean;
+      repoPath: string;
+    }
+  }
+}
+
 export interface ICloneRequest {
   fromUser: string; // e.g. project-templates
   fromApp: string; // e.g. d3-in-a-box
@@ -345,7 +360,18 @@ export default class Project {
     return appName;
   }
 
-  static map(frontend: string): string {
-    return "handlebars";
+  static async getPublishConfiguration(user:string, app:string): Promise<PublishDefenition> {
+    let res = await Request.get(`/project/${user}/${app}/publish-config`);
+    return res.body;
+  }
+
+  static async updatePublishConfiguration(user:string, app:string, config: PublishDefenition) {
+    let res = await Request.get(`/project/${user}/${app}/publish-config`);
+    return res.body;
+  }
+
+  static async initiatePublish(user: string, app:string) {
+    let res =await Request.post(`project/${user}/${app}/publish`, {});
+    return res.body;
   }
 }

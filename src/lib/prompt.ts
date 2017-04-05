@@ -109,6 +109,51 @@ export function promptUse() {
   return inquirer.prompt(questions);
 }
 
+export function configPublishPrompt() {
+  let questions = [
+    {
+      type: "input",
+      name: "repoUrl",
+      message: "Github repo url"
+    },{
+      type: "input",
+      name: "repoBranch",
+      message: "git branch",
+      default: "master"
+    },{
+      type: "confirm",
+      name: "publishData",
+      message: "publish spreadsheet data?"
+    },{
+      type: "input",
+      name: "publishDataPath",
+      message: "data repo path",
+      when: (options) => options.publishData
+    },{
+      type: "confirm",
+      name: "publishFiles",
+      message: "publish documents?"
+    },{
+      type: "input",
+      name: "publishFilesPath",
+      message: "data repo path",
+      when: (options) => options.publishFiles
+    }
+  ];
+  return inquirer.prompt(questions);
+}
+
+export function prePublish(message: string) {
+  let questions = [
+    {
+      type: "confirm",
+      name: "publish",
+      message: message
+    }
+  ];
+  return inquirer.prompt(questions);
+}
+
 
 /*
     if (lio.event.frontEnd && (lio.event.fromUser == 'project-templates') && (lio.event.fromApp == 'starter-widget')) {
