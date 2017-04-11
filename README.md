@@ -25,6 +25,7 @@ Login required:
 * `clone <user>/<app> [folder]` - Clones the user/app on Cloudstitch and does a pull into `[folder]`. If `[folder]` is not specificed, creates one named `<app>`. 
 * `create` - Helps you create a new app based on one of seven base project types.
 * `push [filename]` - Pushes `[filename]` (default: all files) to the remote Cloudstitch project.
+* `publish [--configure]` - Publishes static site to github repository. NOTE: you must complete github authentication on cloutstitch.com before this can be used.
 
 ## Cloudstitch Package format 
 
