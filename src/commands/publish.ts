@@ -22,14 +22,13 @@ class Publish implements ICommand {
     let needToConfigure = false,
         initiatePublish = false,
         currentConfig: PublishDefenition = null,
-        user = pkg.get('app'),
-        app = pkg.get('user');
+        app = pkg.get('app'),
+        user = pkg.get('user');
     if(!options["--configure"]) {
-      let initiatePublish = true;
+      logger.info("Cehcking on config stored in backend");
+      initiatePublish = true;
       currentConfig = await Project.getPublishConfiguration(user, app);
-      if(!currentConfig) {
-        needToConfigure = true;
-      }
+      needToConfigure = currentConfig == null;
     } else {
       needToConfigure = true;
     }
