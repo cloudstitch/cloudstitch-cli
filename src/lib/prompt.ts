@@ -120,7 +120,7 @@ export function configPublishPrompt() {
       name: "repoBranch",
       message: "git branch",
       default: "master"
-    },{
+    }/*,{
       type: "confirm",
       name: "publishData",
       message: "publish spreadsheet data?"
@@ -138,7 +138,7 @@ export function configPublishPrompt() {
       name: "publishFilesPath",
       message: "data repo path",
       when: (options) => options.publishFiles
-    }
+    }*/
   ];
   return inquirer.prompt(questions);
 }

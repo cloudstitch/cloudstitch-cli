@@ -36,17 +36,7 @@ class Publish implements ICommand {
       let options: Answers = await configPublishPrompt();
       currentConfig = {
         repoUrl: options["repoUrl"],
-        repoBranch: options["repoBranch"],
-        exports: {
-          sheet: {
-            export: options["publishData"],
-            repoPath: options["publishDataPath"]
-          },
-          files: {
-            export: options["publishFiles"],
-            repoPath: options["publishFilesPath"]
-          }
-        }
+        repoBranch: options["repoBranch"]
       };
       this.spinner.start();
       await Project.updatePublishConfiguration(user, app, currentConfig);

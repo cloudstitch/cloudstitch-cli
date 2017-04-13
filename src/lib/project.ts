@@ -31,7 +31,7 @@ export type FrontendStack = "d3" | "dust" | "ejs" | "handlebars" | "jade" | "mus
 export type PublishDefenition = {
   repoUrl: string;
   repoBranch: string;
-  exports: {
+  exports?: {
     sheet?: {
       export: boolean;
       repoPath: string;
