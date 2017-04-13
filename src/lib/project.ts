@@ -375,3 +375,8 @@ export default class Project {
     return res.body;
   }
 }
+
+export async function checkAuthToken(serviceName: string): Promise<boolean> {
+  let res = await Request.get(`/auth/${serviceName}`);
+  return res.body.success;
+}

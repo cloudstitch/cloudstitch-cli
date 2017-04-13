@@ -3,6 +3,8 @@ import * as path from "path";
 
 import * as Q from "q";
 
+import Request from "./request";
+
 export function loadFile(file: string): string {
   try {
     return fs.readFileSync(file).toString("utf8");

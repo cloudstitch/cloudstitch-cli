@@ -1,10 +1,11 @@
 import * as path from "path";
 
 import { Answers } from "inquirer";
+let opn = require("opn");
 
 import { ICommand, ICommandOptions } from "./command";
 import { configPublishPrompt, prePublish } from "../lib/prompt";
-import Project, { PublishDefenition } from "../lib/project";
+import Project, { PublishDefenition, checkAuthToken } from "../lib/project";
 import { instance as logger } from "../lib/logger";
 import { instance as config } from "../lib/config";
 import Spinner from "../lib/spinner";
@@ -24,6 +25,12 @@ class Publish implements ICommand {
         currentConfig: PublishDefenition = null,
         app = pkg.get('app'),
         user = pkg.get('user');
+    let needAuth = !await checkAuthToken("github");
+    if(needAuth) {
+      logger.warn("You need to authorize cloudstitch before you can continue. Visit https://cloudstitch.com/auth/github");
+      opn("https://cloudstitch.com/auth/github");
+      process.exit(1);
+    }
     if(!options["--configure"]) {
       logger.info("Cehcking on config stored in backend");
       initiatePublish = true;

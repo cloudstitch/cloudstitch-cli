@@ -65,12 +65,14 @@ export default class Request {
           logger.info(`Res from ${method}:${finalUrl} => ${res.statusCode}`);
           if(res.statusCode >= 200 && res.statusCode < 400) {
             logger.info(`Res detected success from ${method}:${finalUrl} => content length ${typeof body === "string" ? body.length < 1000 ? body : body.length : "JSON"}`)
+            console.log(body);
             return resolve({
               res,
               body
             });
           } else {
             logger.info(`Res detected error from ${method}:${finalUrl} => content length: ${typeof body === "string" ? body.length < 1000 ? body : body.length : "JSON"}`)
+            console.log(body);
             return reject({
               res,
               body: body
