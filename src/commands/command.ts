@@ -16,7 +16,7 @@ export interface ICommandOptions {
   serve: boolean;
   create: boolean;
   signup: boolean;
-
+  "get settings:publish": string;
   "<user/app>": string;
   "<file>": string;
   "<folder>": string;

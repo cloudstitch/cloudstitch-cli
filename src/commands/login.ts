@@ -43,7 +43,7 @@ class Login implements ICommand {
       Request.post("/session", {
       user: answeres["username"],
       password: answeres["password"],
-      desiredResponse: "web-token"
+      desiredResponse: "token"
     }).then((result) => {
       if(result.body.token) {
         config.set("ApiKey", result.body.token);

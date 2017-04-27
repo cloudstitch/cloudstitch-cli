@@ -33,11 +33,13 @@ export class Logger {
     }
     message = <any>message;
     while(typeof message !== "string" ) {
-      message = message.message
-        || message.Message
-        || message.error
-        || message.Error
-        || JSON.stringify(message);
+      if (message) {
+        message = message.message
+          || message.Message
+          || message.error
+          || message.Error
+          || JSON.stringify(message);
+      }
     }
     let levelMark = level !== "debug" ? chalk[colorMap[level]](`[${level}]`) : `[${level}]`;
     if(levelMap[configLogLevel] > levelMap["warn"]) {

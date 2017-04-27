@@ -145,6 +145,34 @@ export default class Project {
     }
   }
 
+  static async getPublishSettings(user: string, app: string) {
+    let settingsResp = await Request.get(`/project/${user}/${app}/publish-config`);
+    let settingsJson: ICloneStatusResponse = settingsResp.body;
+    logger.info(`Publish settings: \n\n ${JSON.stringify(settingsJson, undefined, 2)}\n\n`);
+  }
+
+  static async setPublishSettings(user: string, app: string, filename: string) {
+    let settings;
+    let settingsJson;
+    
+    try {
+      settings = fs.readFileSync(filename).toString();
+    } catch(ex) {
+      logger.error("Unable to read your settings file");
+      return;
+    }
+
+    try {
+      settingsJson = JSON.parse(settings);
+    } catch(ex) {
+      logger.error("This settings JSON isn't well formed");
+      return;
+    }
+
+    let settingsResp = await Request.post(`/project/${user}/${app}/publish-config`, settingsJson);
+    logger.info(`Deployed settings: \n\n ${JSON.stringify(settingsJson, undefined, 2)}\n\n`);
+  }
+
   static async pull(folder: string, user: string, app: string, force: boolean) {
     let checkAppDir;
     try {

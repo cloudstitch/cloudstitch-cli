@@ -42,10 +42,10 @@ export class Config {
   set(key: string, value: string, local=false) {
     if(local && this.localConfigFile) {
       this.localConfig[key] = value;
-      fs.writeFileSync(this.localConfigFile, JSON.stringify(this.localConfig));
+      fs.writeFileSync(this.localConfigFile, JSON.stringify(this.localConfig, undefined, 2));
     } else {
       this.homeConfig[key] = value;
-      fs.writeFileSync(this.homeConfigFile, JSON.stringify(this.homeConfig));
+      fs.writeFileSync(this.homeConfigFile, JSON.stringify(this.homeConfig, undefined, 2));
     }
   }
 }
