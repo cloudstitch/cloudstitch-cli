@@ -20,13 +20,14 @@ class Delete implements ICommand {
     this.spinner = new Spinner();
   }
   async run(options: Object) {
+    var self = this;
     inquirer.prompt([
       {
         type:"input",
         message: "Type the full project name to delete",
         name: "projectName"
       }
-    ]).then(this.runDelete);
+    ]).then(function(a) {self.runDelete(a)});
   }
   async runDelete(answers: inquirer.Answers) {
     var providedName = answers['projectName'];

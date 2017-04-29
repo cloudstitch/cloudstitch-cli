@@ -188,7 +188,9 @@ export default class Project {
   }
 
   static async delete(user: string, app: string) {
-    logger.error("Not implemented: delete")
+    let deleteUrl = `/project/${user}/${app}/delete`
+    let deleteResp = await Request.post(deleteUrl, {});
+    logger.info(`Deleted`);
   }
 
   static async pull(folder: string, user: string, app: string, force: boolean) {
