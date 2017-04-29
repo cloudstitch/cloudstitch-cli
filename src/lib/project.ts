@@ -187,6 +187,19 @@ export default class Project {
     }
   }
 
+  static async removeObject(user: string, app: string, component: string, id: string) {
+    logger.info(`IMPLEMENT`);
+  }
+
+  static async listObjects(user: string, app: string, component: string) {
+    logger.info(`IMPLEMENT`);
+  }
+
+  static async addObject(user: string, app: string, component: string, filename: string) {
+    logger.info(`IMPLEMENT`);
+  }
+
+
   static async delete(user: string, app: string) {
     let deleteUrl = `/project/${user}/${app}/delete`
     let deleteResp = await Request.post(deleteUrl, {});
