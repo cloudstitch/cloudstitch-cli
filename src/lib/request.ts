@@ -30,7 +30,6 @@ export default class Request {
         //remove leading slash
         path = path.slice(1, path.length);
       }
-      //TODO this default base url is not final
       let baseUrl = config.get("baseApiEndPoint") || 'https://hdvh2pvekj.execute-api.us-west-2.amazonaws.com/production/';
       let finalUrl = path.indexOf("http") !== -1 ? path : url.resolve(baseUrl, path);
       let headers = {
@@ -65,14 +64,13 @@ export default class Request {
           logger.info(`Res from ${method}:${finalUrl} => ${res.statusCode}`);
           if(res.statusCode >= 200 && res.statusCode < 400) {
             logger.info(`Res detected success from ${method}:${finalUrl} => content length ${typeof body === "string" ? body.length < 1000 ? body : body.length : "JSON"}`)
-            console.log(body);
             return resolve({
               res,
               body
             });
           } else {
             logger.info(`Res detected error from ${method}:${finalUrl} => content length: ${typeof body === "string" ? body.length < 1000 ? body : body.length : "JSON"}`)
-            console.log(body);
+            logger.info(body);
             return reject({
               res,
               body: body

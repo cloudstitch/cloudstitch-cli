@@ -11,11 +11,8 @@ export default function token(): Promise<void> {
       reject();
     }
     Request.get("/session").then((result) => {
-      if(result.body.token === apiKey) {
-        resolve();
-      } else {
-        reject();
-      }
+      // This method call returns HTTP FORBIDDEN if we're not logged in.
+      resolve();
     }, (result) => {
       reject();
     });

@@ -52,7 +52,7 @@ let messageLoginError = () => {
 
 Object.keys(commands).forEach(key => {
   if(typeof options[key] === "boolean" && options[key]) {
-    let command = commands[key];
+    let command = commands[key];    
     if(command.requiresPkg) {
       let thisPkgValidation = pkg.isInvalid();
       if(options["<folder>"]) {

@@ -145,16 +145,18 @@ export default class Project {
     }
   }
 
-  static async getPublishSettings(user: string, app: string) {
-    let settingsResp = await Request.get(`/project/${user}/${app}/publish-config`);
+  static async getSettings(user: string, app: string, component: string) {
+    let settingsUrl = `/project/${user}/${app}/settings/${component}`
+    let settingsResp = await Request.get(settingsUrl);
     let settingsJson: ICloneStatusResponse = settingsResp.body;
-    logger.info(`Publish settings: \n\n ${JSON.stringify(settingsJson, undefined, 2)}\n\n`);
+    logger.info(`\n\n ${JSON.stringify(settingsJson, undefined, 2)}\n\n`);
   }
 
-  static async setPublishSettings(user: string, app: string, filename: string) {
+  static async setSettings(user: string, app: string, component: string, filename: string) {
     let settings;
-    let settingsJson;
-    
+    let settingsJson;    
+    let settingsUrl = `/project/${user}/${app}/settings/${component}`
+
     try {
       settings = fs.readFileSync(filename).toString();
     } catch(ex) {
@@ -169,8 +171,24 @@ export default class Project {
       return;
     }
 
-    let settingsResp = await Request.post(`/project/${user}/${app}/publish-config`, settingsJson);
+    let settingsResp = await Request.post(settingsUrl, settingsJson);
     logger.info(`Deployed settings: \n\n ${JSON.stringify(settingsJson, undefined, 2)}\n\n`);
+  }
+
+  static async list(user: string) {
+    let listResp = await Request.get(`/projects/${user}`);
+
+    if (listResp && listResp.body) {
+      for (var app of listResp.body) {
+        logger.info(`- ${user}/${app.appname}`)
+      }
+    } else {
+      logger.info('No apps found.');
+    }
+  }
+
+  static async delete(user: string, app: string) {
+    logger.error("Not implemented: delete")
   }
 
   static async pull(folder: string, user: string, app: string, force: boolean) {
