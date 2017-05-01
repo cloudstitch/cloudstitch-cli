@@ -38,6 +38,7 @@ export default class Request {
       let ApiKey = config.get("ApiKey");
       if(ApiKey) {
         headers["Authorization"] = `Bearer ${ApiKey}`;
+        console.log("Added auth", headers);
       }
       if(contentType) {
         headers["Content-Type"] = contentType;
