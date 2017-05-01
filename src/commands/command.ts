@@ -3,9 +3,11 @@ import Spinner from "../lib/spinner";
 
 export interface ICommand{
   doc: string;
-  requiresPkg: boolean;
-  requiresLogin: boolean;
+  requiresPkg: (options: Object) => boolean;
+  requiresLogin: (options: Object) => boolean;
   run(options: ICommandOptions): void;
+  invocations: string[];
+
 }
 
 export interface ICommandOptions {

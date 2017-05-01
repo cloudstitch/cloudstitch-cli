@@ -11,10 +11,19 @@ import Spinner from "../lib/spinner";
 
 class Create implements ICommand {
   doc ="create [<folder>]";
-  requiresPkg = false;
-  requiresLogin = true;
   toFolder: string;
   spinner: Spinner;
+
+  requiresPkg(options: Object) {
+    return false;
+  }
+
+  requiresLogin(options: Object) {
+    return true;
+  }
+
+  invocations = ['create'];
+
   constructor() {
     this.spinner = new Spinner();
   }

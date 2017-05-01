@@ -435,6 +435,23 @@ export default class Project {
     let res =await Request.post(`project/${user}/${app}/publish`, {});
     return res.body;
   }
+
+  static async initiatePublishSheet(user: string, app:string) {
+    let res =await Request.post(`project/${user}/${app}/publish_sheet`, {});
+    return res.body;
+  }
+
+  static async getTaskStatus(user: string, app:string, category:string, label:string, task:string, kind?:string) {
+    let res;
+    if (kind) {
+      res = await Request.get(`tasks/${user}/${app}/${category}/${label}/${task}/${kind}`);
+    } else {
+      res = await Request.get(`tasks/${user}/${app}/${category}/${label}/${task}`);
+    }
+    logger.info(`\n\n${JSON.stringify(res.body, undefined, 2)}\n\n`)
+    return res.body;
+  }
+
 }
 
 export async function checkAuthToken(serviceName: string): Promise<boolean> {

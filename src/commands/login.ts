@@ -8,10 +8,19 @@ import token from "../lib/token";
 
 class Login implements ICommand {
   doc = "login [--status]";
-  requiresPkg = false;
-  requiresLogin = false;
   options: ICommandOptions;
   trys = 0;
+
+  requiresPkg(options: Object) {
+    return false;
+  }
+
+  requiresLogin(options: Object) {
+    return false;
+  }
+
+  invocations =['login'];
+
   run(options: ICommandOptions) {
     this.options = options;
     if(options["--status"]) {

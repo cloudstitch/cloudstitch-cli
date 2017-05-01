@@ -13,12 +13,21 @@ import { instance as pkg } from "../lib/package";
 
 class Publish implements ICommand {
   doc ="publish [--configure]";
-  requiresPkg = true;
-  requiresLogin = true;
   spinner: Spinner;
   constructor() {
     this.spinner = new Spinner();
   }
+
+  requiresPkg(options: Object) {
+    return true;
+  }
+
+  requiresLogin(options: Object) {
+    return true;
+  }
+
+  invocations = ['publish'];
+
   async run(options: ICommandOptions) {
     let needToConfigure = false,
         initiatePublish = false,

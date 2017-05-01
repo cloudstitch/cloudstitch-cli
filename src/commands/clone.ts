@@ -12,14 +12,23 @@ import { instance as logger } from "../lib/logger";
 
 class Clone implements ICommand {
   doc ="clone <user/app> [<folder>]";
-  requiresPkg = false;
-  requiresLogin = true;
   fromProject: string;
   toFolder: string;
   spinner: any;
   constructor() {
     this.spinner = new Spinner();
   }
+  
+  invocations = ['clone'];
+
+  requiresPkg(options: Object) {
+    return false;
+  }
+
+  requiresLogin(options: Object) {
+    return true;
+  }
+
   run(options: ICommandOptions) {
     this.fromProject = options["<user/app>"];
     this.toFolder = options["<folder>"];

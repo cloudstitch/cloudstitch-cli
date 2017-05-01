@@ -21,7 +21,10 @@ Usage:
 
 for(var ii in dir) {
   var d = dir[ii];
-  commands[d] = require(path.join(__dirname, `./commands/${d}`));
+  var cmd = require(path.join(__dirname, `./commands/${d}`));;
+  for (let invocation of cmd.invocations) {
+    commands[invocation] = cmd;
+  }
   doc = `${doc}  ${process.title} ${commands[d].doc}\n`;
   logger.info(`found ${d}: ${commands[d].doc}`)
 }
@@ -32,9 +35,10 @@ Options:
   -v --version     Show version.
 `;
 
-var packageJson = utils.loadJson(path.join(__dirname, "../package.json"));
 
+var packageJson = utils.loadJson(path.join(__dirname, "../package.json"));
 var options = docopt(doc, {version: packageJson.version});
+console.log("made opts");
 
 let messagePackageValidationError = (pkgValidation) => {
   if(pkgValidation.packageMalformed) {
@@ -50,11 +54,16 @@ let messageLoginError = () => {
   process.exit(1);
 };
 
+console.log("Look at commands");
+
 Object.keys(commands).forEach(key => {
+  console.log("Command?", key);
   if(typeof options[key] === "boolean" && options[key]) {
     let command = commands[key];    
-    if(command.requiresPkg) {
+    console.log("Yes!", key);
+    if(command.requiresPkg(options)) {
       let thisPkgValidation = pkg.isInvalid();
+
       if(options["<folder>"]) {
         let folderPackage = new Package(options["<folder>"]),
             letValidation = folderPackage.isInvalid();
@@ -65,10 +74,11 @@ Object.keys(commands).forEach(key => {
         messagePackageValidationError(thisPkgValidation);
       }
     }
+
     let runCommand = () => {
       commands[key].run(options);
     };
-    if(command.requiresLogin) {
+    if(command.requiresLogin(options)) {
       token().then(runCommand, messageLoginError);
     } else {
       runCommand();

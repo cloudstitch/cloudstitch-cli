@@ -7,8 +7,17 @@ import { instance as config } from "../lib/config";
 
 class Signup implements ICommand {
   doc = "signup";
-  requiresPkg = false;
-  requiresLogin = false;
+
+  requiresPkg(options: Object) {
+    return false;
+  }
+
+  requiresLogin(options: Object) {
+    return false;
+  }
+
+  invocations = ['signup'];
+
   run(options: ICommandOptions) {
       inquirer.prompt([
       {
