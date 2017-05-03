@@ -148,6 +148,7 @@ export default class Project {
   static async getSettings(user: string, app: string, component: string) {
     let settingsUrl = `/project/${user}/${app}/settings/${component}`
     let settingsResp = await Request.get(settingsUrl);
+    console.log("PATH", settingsUrl);
     let settingsJson: ICloneStatusResponse = settingsResp.body;
     logger.info(`\n\n ${JSON.stringify(settingsJson, undefined, 2)}\n\n`);
   }
@@ -156,6 +157,8 @@ export default class Project {
     let settings;
     let settingsJson;    
     let settingsUrl = `/project/${user}/${app}/settings/${component}`
+    
+    console.log("PATH", settingsUrl);
 
     try {
       settings = fs.readFileSync(filename).toString();
@@ -170,6 +173,8 @@ export default class Project {
       logger.error("This settings JSON isn't well formed");
       return;
     }
+
+    console.log("SET", settingsJson);
 
     let settingsResp = await Request.post(settingsUrl, settingsJson);
     logger.info(`Deployed settings: \n\n ${JSON.stringify(settingsJson, undefined, 2)}\n\n`);
