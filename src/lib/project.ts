@@ -148,9 +148,8 @@ export default class Project {
   static async getSettings(user: string, app: string, component: string) {
     let settingsUrl = `/project/${user}/${app}/settings/${component}`
     let settingsResp = await Request.get(settingsUrl);
-    console.log("PATH", settingsUrl);
     let settingsJson: ICloneStatusResponse = settingsResp.body;
-    logger.info(`\n\n ${JSON.stringify(settingsJson, undefined, 2)}\n\n`);
+    return settingsJson;
   }
 
   static async setSettings(user: string, app: string, component: string, filename: string) {
@@ -178,6 +177,7 @@ export default class Project {
 
     let settingsResp = await Request.post(settingsUrl, settingsJson);
     logger.info(`Deployed settings: \n\n ${JSON.stringify(settingsJson, undefined, 2)}\n\n`);
+    return settingsResp;
   }
 
   static async list(user: string) {

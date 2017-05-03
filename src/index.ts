@@ -38,7 +38,6 @@ Options:
 
 var packageJson = utils.loadJson(path.join(__dirname, "../package.json"));
 var options = docopt(doc, {version: packageJson.version});
-console.log("made opts");
 
 let messagePackageValidationError = (pkgValidation) => {
   if(pkgValidation.packageMalformed) {
@@ -54,13 +53,9 @@ let messageLoginError = () => {
   process.exit(1);
 };
 
-console.log("Look at commands");
-
 Object.keys(commands).forEach(key => {
-  console.log("Command?", key);
   if(typeof options[key] === "boolean" && options[key]) {
     let command = commands[key];    
-    console.log("Yes!", key);
     if(command.requiresPkg(options)) {
       let thisPkgValidation = pkg.isInvalid();
 
