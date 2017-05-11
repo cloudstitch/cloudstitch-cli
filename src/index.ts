@@ -8,6 +8,7 @@ import { instance as pkg, Package } from "./lib/package";
 import { instance as logger } from "./lib/logger";
 import { instance as config } from "./lib/config";
 import token from "./lib/token";
+import {usage} from "./usage";
 
 var dir = fs.readdirSync(path.join(__dirname, "./commands"))
   .map(d => d.split(".")[0])
@@ -35,9 +36,18 @@ Options:
   -v --version     Show version.
 `;
 
-
 var packageJson = utils.loadJson(path.join(__dirname, "../package.json"));
-var options = docopt(doc, {version: packageJson.version});
+
+
+var options;
+
+try {
+  options = docopt(doc, {version: packageJson.version, help: false, exit: false});
+} catch(ex) {
+  // The provided options weren't valid.
+  usage();
+  process.exit(-1);
+}
 
 let messagePackageValidationError = (pkgValidation) => {
   if(pkgValidation.packageMalformed) {
@@ -52,6 +62,10 @@ let messageLoginError = () => {
   logger.error("You don't appear to be logged in, please run `cloudstitch login`.");
   process.exit(1);
 };
+
+usage();
+
+
 
 Object.keys(commands).forEach(key => {
   if(typeof options[key] === "boolean" && options[key]) {
