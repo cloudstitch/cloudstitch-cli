@@ -4,6 +4,7 @@ import * as Q from "q";
 var chalk = require("chalk");
 
 import { Answers } from "inquirer";
+import Server from "../lib/server";
 import { ICommand, ICommandOptions } from "./command";
 import { prompt, promptUse } from "../lib/prompt";
 import Project from "../lib/project";
@@ -13,7 +14,7 @@ import { Package, instance as pkg } from "../lib/package";
 import Spinner from "../lib/spinner";
 import request from "../lib/request";
 let Zip = require("jszip");
-const PULL_PUSH = "(<pull>  |  <push>  |  <sync>  | <publish>)";
+const PULL_PUSH = "(<pull>  |  <push>  |  <sync>  | <publish> | <serve>) [<folder>] [--watch]";
 
 const messageInvalidParam = () => {
   logger.error("The user and app do not appear to be valid");
@@ -50,8 +51,9 @@ class Widget implements ICommand {
   }
 
   requiresLogin(options: Object) {
-    // Require a login for everything but pull
-    return (!(options["<pull>"] == "pull"))
+    if (options["<pull>"]) return false;
+    if (options["<serve>"]) return false;
+    return true;
   }
 
   invocations = ['widget'];
@@ -77,6 +79,9 @@ class Widget implements ICommand {
         case 'publish':
           await this.publish(options);
           break;
+        case 'server':
+          await this.serve(options);
+          break;
         default:
           logger.error("Please specify either `widget pull` or `widget push` or `widget sync`")
           break;
@@ -91,6 +96,11 @@ class Widget implements ICommand {
 
   async syncStatus(options: Object) {
     let result = await Project.getTaskStatus(pkg.get("user"), pkg.get("app"), 'datasource', 'sheet', 'update-cache', 'gsheet');
+  }
+
+  async serve(options: Object) {
+    let server = new Server(!!options["--watch"],  options["<folder>"]);
+    server.run();
   }
 
   async sync(options: Object) {

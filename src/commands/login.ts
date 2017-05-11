@@ -7,7 +7,7 @@ import { instance as config } from "../lib/config";
 import token from "../lib/token";
 
 class Login implements ICommand {
-  doc = "login [--status]";
+  doc = "login [--status] [--forgot]";
   options: ICommandOptions;
   trys = 0;
 
@@ -30,6 +30,8 @@ class Login implements ICommand {
       }, () => {
         logger.error("You are not logged in");
       });
+    } else if (options['--forgot']) {
+      logger.error("Forgot password: Unimplemented.");
     } else {
       this.trys++;
       let questions = 
