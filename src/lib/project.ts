@@ -12,7 +12,6 @@ import { instance as logger } from "../lib/logger";
 import { instance as config } from "../lib/config";
 import * as utils from "../lib/utils";
 
-
 export interface IProjectDetails {
   user?: string;
   app?: string;
@@ -43,9 +42,15 @@ export type PublishDefenition = {
   }
 }
 
+export interface IProjectTemplateRequest {
+  url?: string,
+  json?: any,
+  user?: string,
+  app?: string
+}
+
 export interface ICloneRequest {
-  fromUser: string; // e.g. project-templates
-  fromApp: string; // e.g. d3-in-a-box
+  projectTemplate: IProjectTemplateRequest,
   toUser?: string;
   name: string; // e.g., "My new Project"
   private?: boolean;
@@ -152,9 +157,44 @@ export default class Project {
     return settingsJson;
   }
 
+  static async getInfo(user: string, app: string, url: string, json: string) {
+    let settingsUrl;
+    let settings;
+    let settingsJson;
+
+    if (url) {
+      settingsUrl = `/project/${user}/${app}/infocard`;
+    } else {
+      settingsUrl = `/project/${user}/${app}/infocard`;
+    }
+    
+    if (json) {
+      try {
+        settings = fs.readFileSync(json).toString();
+      } catch(ex) {
+        logger.error("Unable to read your settings file");
+        return;
+      }
+
+      try {
+        settingsJson = {json: JSON.parse(settings).projectTemplate};
+      } catch(ex) {
+        logger.error("This settings JSON isn't well formed");
+        return;
+      }
+    
+      let settingsResp = await Request.post(settingsUrl, settingsJson);
+      return settingsResp;
+    } else {
+      let settingsResp = await Request.get(settingsUrl);
+      let settingsJson = settingsResp.body;
+      return settingsJson;
+    }
+  }
+
   static async setSettings(user: string, app: string, component: string, filename: string) {
     let settings;
-    let settingsJson;    
+    let settingsJson;
     let settingsUrl = `/project/${user}/${app}/settings/${component}`
     
     console.log("PATH", settingsUrl);
@@ -399,8 +439,10 @@ export default class Project {
         user = fromParts[0],
         app = fromParts[1],
         req: ICloneRequest = {
-          fromUser: user,
-          fromApp: app,
+          projectTemplate: {
+            user: user,
+            app: app
+          },
           name,
           backendStack
         };

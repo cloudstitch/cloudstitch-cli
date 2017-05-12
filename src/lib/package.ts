@@ -19,6 +19,7 @@ export class Package {
   packageRootPath: string;
   packageDef: PackageDef;
   constructor(basePath?: string) {
+    console.log("base pasth", basePath);
     if(basePath) {
       this.packageRootPath = path.resolve(process.cwd(), basePath);
       let loadedJson = utils.loadJson(path.join(this.packageRootPath, this.pagkaceDefName));

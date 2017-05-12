@@ -72,10 +72,9 @@ Object.keys(commands).forEach(key => {
     let command = commands[key];    
     if(command.requiresPkg(options)) {
       let thisPkgValidation = pkg.isInvalid();
-
-      if(options["<folder>"]) {
-        let folderPackage = new Package(options["<folder>"]),
-            letValidation = folderPackage.isInvalid();
+      if(options["<folder>"] && options["<folder>"].length) {
+        let folderPackage = new Package(options["<folder>"]);
+        let letValidation = folderPackage.isInvalid();
         if(letValidation) {
           messagePackageValidationError(letValidation);
         }

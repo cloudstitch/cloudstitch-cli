@@ -17,7 +17,7 @@ const SUBCOMMANDS = "<list|delete>";
 const ERROR_MSG = "Unknown thing to get"
 
 class SetCmd extends MultiplexingCommand implements ICommand {
-  doc = "set (<api>|<publish>|<folder>|<notification>) <settings> [--jsonfile=<somefile>]";
+  doc = "set <target> <subtarget> [--jsonfile=<somefile>]";
   invocations = ['set'];
 
   multiplexedCommands() {
@@ -34,7 +34,7 @@ class SetCmd extends MultiplexingCommand implements ICommand {
   }
 
   async api(options: Object) {
-    if (options["<settings>"]) {
+    if (options["<subtarget>"] == 'settings') {
       await Project.setSettings(this.packageUser, this.packageApp, 'api', options["--jsonfile"]);
     } else {
       logger.error(ERROR_MSG);
@@ -42,7 +42,7 @@ class SetCmd extends MultiplexingCommand implements ICommand {
   }
 
   async publish(options: Object) {
-    if (options["<settings>"]) {
+    if (options["<subtarget>"] == 'settings') {
       await Project.setSettings(this.packageUser, this.packageApp, 'publish', options["--jsonfile"]);
     } else {
       logger.error(ERROR_MSG);
@@ -50,7 +50,7 @@ class SetCmd extends MultiplexingCommand implements ICommand {
   }
 
   async folder(options: Object) {
-    if (options["<settings>"]) {
+    if (options["<subtarget>"] == 'settings') {
       await Project.setSettings(this.packageUser, this.packageApp, 'folder', options["--jsonfile"]);
     } else {
       logger.error(ERROR_MSG);
@@ -58,7 +58,7 @@ class SetCmd extends MultiplexingCommand implements ICommand {
   }
 
   async notification(options: Object) {
-    if (options["<settings>"]) {
+    if (options["<subtarget>"] == 'settings') {
       await Project.setSettings(this.packageUser, this.packageApp, 'notification', options["--jsonfile"]);
     } else {
       logger.error(ERROR_MSG);

@@ -17,7 +17,7 @@ const SUBCOMMANDS = "<list|delete>";
 const ERROR_MSG = "Unknown thing to get"
 
 class GetCmd extends MultiplexingCommand implements ICommand {
-  doc = "get (<api>|<publish>|<folder>|<notification>) <settings>";
+  doc = "get <target> <subtarget> [--url=<url>] [--jsonfile=<jsonfile>]";
   invocations = ['get'];
 
   multiplexedCommands() {
@@ -25,6 +25,7 @@ class GetCmd extends MultiplexingCommand implements ICommand {
       {name: 'api', package: true, login: true},
       {name: 'publish', package: true, login: true},
       {name: 'folder', package: true, login: true},
+      {name: 'project', package: true, login: true},
       {name: 'notification', package: true, login: true}
     ]
   }
@@ -34,7 +35,7 @@ class GetCmd extends MultiplexingCommand implements ICommand {
   }
 
   async api(options: Object) {
-    if (options["<settings>"]) {
+    if (options["<subtarget>"] == 'settings') {
       var settingsJson = await Project.getSettings(this.packageUser, this.packageApp, 'api');
       logger.info(`\n\n ${JSON.stringify(settingsJson, undefined, 2)}\n\n`);
     } else {
@@ -43,7 +44,8 @@ class GetCmd extends MultiplexingCommand implements ICommand {
   }
 
   async publish(options: Object) {
-    if (options["<settings>"]) {
+    console.log(options);
+    if (options["<subtarget>"] == 'settings') {
       var settingsJson = await Project.getSettings(this.packageUser, this.packageApp, 'publish');
       logger.info(`\n\n ${JSON.stringify(settingsJson, undefined, 2)}\n\n`);
     } else {
@@ -52,7 +54,7 @@ class GetCmd extends MultiplexingCommand implements ICommand {
   }
 
   async folder(options: Object) {
-    if (options["<settings>"]) {
+    if (options["<subtarget>"] == 'settings') {
       var settingsJson = await Project.getSettings(this.packageUser, this.packageApp, 'folder');
       logger.info(`\n\n ${JSON.stringify(settingsJson, undefined, 2)}\n\n`);
     } else {
@@ -60,8 +62,18 @@ class GetCmd extends MultiplexingCommand implements ICommand {
     }
   }
 
+  async project(options: Object) {
+    console.log('project', options['<project>'], options);
+    if (options["<subtarget>"] == 'info') {
+      var settingsJson = await Project.getInfo(this.packageUser, this.packageApp, options["--url"], options["--jsonfile"]);
+      logger.info(`\n\n ${JSON.stringify(settingsJson, undefined, 2)}\n\n`);
+    } else {
+      logger.error(ERROR_MSG);
+    }
+  }
+
   async notification(options: Object) {
-    if (options["<settings>"]) {
+    if (options["<subtarget>"] == 'settings') {
       var settingsJson = await Project.getSettings(this.packageUser, this.packageApp, 'notification');
       logger.info(`\n\n ${JSON.stringify(settingsJson, undefined, 2)}\n\n`);
     } else {

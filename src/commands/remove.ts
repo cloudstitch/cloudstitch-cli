@@ -15,7 +15,7 @@ import {MultiplexingCommand} from "../lib/multiplexing_command";
 const SUBCOMMANDS = "<list|delete>";
 
 class RemoveCmd extends MultiplexingCommand implements ICommand {
-  doc = "remove (<project>|<notification>)";
+  doc = "remove <target>";
   invocations = ['remove'];
 
   multiplexedCommands() {

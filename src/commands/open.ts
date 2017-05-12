@@ -18,7 +18,7 @@ const SUBCOMMANDS = "<list|delete>";
 const ERROR_MSG = "Unknown thing to get"
 
 class OpenCmd extends MultiplexingCommand implements ICommand {
-  doc = "open (<project>|<folder>|<sheet>)";
+  doc = "open <target>";
   invocations = ['open'];
 
   multiplexedCommands() {

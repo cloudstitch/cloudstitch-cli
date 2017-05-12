@@ -15,7 +15,7 @@ import {MultiplexingCommand} from "../lib/multiplexing_command";
 const SUBCOMMANDS = "<list|delete>";
 
 class AppCmd extends MultiplexingCommand implements ICommand {
-  doc = "add (<api>|<publish>|<folder>|<notification>)";
+  doc = "add <target>";
   invocations = ['add'];
 
   multiplexedCommands() {

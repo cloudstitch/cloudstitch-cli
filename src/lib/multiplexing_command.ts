@@ -88,8 +88,9 @@ export class MultiplexingCommand {
     try {    
       var directObject = null;
       for (var cmd of this.multiplexedCommands()) {
-        directObject = directObject || options[`<${cmd.name}>`];
+        directObject = directObject || options[`<target>`];
       }
+      console.log("We decided upon", directObject);
       if (typeof this[directObject] != 'undefined') {
         try {
           await this[directObject](options);
