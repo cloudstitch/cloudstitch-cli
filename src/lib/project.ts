@@ -56,6 +56,10 @@ export interface ICloneRequest {
   private?: boolean;
   backendStack: BackendStack;
   frontEnd?: FrontendStack; // The web interface will send this.
+
+  cloneGitRepo?: string;
+  // Just use this one (takes precedence)
+  useGitRepo?: string;
 }
 
 export interface ICloneResponse {
@@ -434,7 +438,7 @@ export default class Project {
     );
   }
 
-  static async clone(name: string, from: string, backendStack: BackendStack, frontEnd?: FrontendStack): Promise<string> {
+  static widgetCloneRequest(name: string, from: string, backendStack: BackendStack, frontEnd?: FrontendStack): ICloneRequest {
     let fromParts = from.split("/"),
         user = fromParts[0],
         app = fromParts[1],
@@ -449,7 +453,27 @@ export default class Project {
     if(frontEnd) {
       req.frontEnd = frontEnd;
     }
-    let res: IRequestResult = await Request.post(`/project/${user}/${app}/clone`, req);
+    return req;
+  }
+
+  static siteCloneRequest(name: string, backendStack: BackendStack, inlineJson: any, url: string, cloneGitRepo: string, useGitRepo: string): ICloneRequest {
+    let req : ICloneRequest = {
+      projectTemplate: {
+        url,
+        json: inlineJson,
+        user: 'project-templates',
+        app: 'jekyll-website'
+      },
+      backendStack,
+      name,
+      cloneGitRepo,
+      useGitRepo
+    };
+    return req;
+  }
+
+  static async clone(req: ICloneRequest): Promise<string> {
+    let res: IRequestResult = await Request.post(`/project/${req.projectTemplate.user}/${req.projectTemplate.app}/clone`, req);
     let cloneRes: ICloneResponse = res.body,
         appName = cloneRes.app,
         appUsername = cloneRes.user;
@@ -498,7 +522,6 @@ export default class Project {
     logger.info(`\n\n${JSON.stringify(res.body, undefined, 2)}\n\n`)
     return res.body;
   }
-
 }
 
 export async function checkAuthToken(serviceName: string): Promise<boolean> {

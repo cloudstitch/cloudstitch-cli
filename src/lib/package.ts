@@ -3,10 +3,37 @@ import * as path from "path";
 import * as utils from "./utils";
 import { instance as logger } from "./logger";
 
-class PackageDef {
+export interface ICloudFolderTemplate {
+  service: "google" | "microsoft";
+  folderKey: string;
+  spreadsheetApiKey: string;
+}
+
+export interface IGitRepoTemplate {
+  url: string;
+}
+
+export interface ICloudstitchProject {
+  user: string;
+  app: string;
+}
+
+export interface PackageTemplate {
+  name?: string;
+  description?: string,
+  type?: "site",
+  cloudFolder?: ICloudFolderTemplate,
+  gitRepo?: IGitRepoTemplate
+  cloudstitchProject?: ICloudstitchProject
+}
+
+export class PackageDef {
   user: string;
   app: string;
   variant: string;
+
+  template?: PackageTemplate;
+
   constructor(user: string, app: string, variant: string) {
     this.user = user;
     this.app = app;
@@ -19,26 +46,25 @@ export class Package {
   packageRootPath: string;
   packageDef: PackageDef;
   constructor(basePath?: string) {
-    console.log("base pasth", basePath);
+    let packageJson;
     if(basePath) {
       this.packageRootPath = path.resolve(process.cwd(), basePath);
-      let loadedJson = utils.loadJson(path.join(this.packageRootPath, this.pagkaceDefName));
-      if(loadedJson) {
-        this.packageDef = new PackageDef(
-          loadedJson["user"],
-          loadedJson["app"],
-          loadedJson["variant"]);
-      }
+      let packageJson = utils.loadJson(path.join(this.packageRootPath, this.pagkaceDefName));
     } else {
       let fileDetails = utils.readFromParent(process.cwd(), this.pagkaceDefName);
-      if(fileDetails.fileJson) {
-        this.packageDef = new PackageDef(
-          fileDetails.fileJson["user"],
-          fileDetails.fileJson["app"],
-          fileDetails.fileJson["variant"]);
-      }
       this.packageRootPath = fileDetails.basePath;
+      packageJson = fileDetails.fileJson;
     }
+    if(packageJson) {
+      this.packageDef = new PackageDef(
+        packageJson["user"],
+        packageJson["app"],
+        packageJson["variant"]);
+      if (packageJson['template']) {
+        this.packageDef.template = packageJson.template;
+      }
+    }
+
     logger.info(`Read package information from ${this.packageRootPath}:${JSON.stringify(this.packageDef)}`)
   }
   isInvalid(): any {

@@ -43,6 +43,7 @@
     "mime-types": "^2.1.14",
     "node-websocket": "^0.1.6",
     "opn": "^4.0.2",
+    "parse-git-config": "^1.1.1",
     "q": "^1.4.1",
     "request": "^2.79.0",
     "time-stamp": "^1.0.1",

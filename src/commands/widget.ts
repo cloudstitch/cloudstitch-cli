@@ -13,8 +13,9 @@ import { instance as config } from "../lib/config";
 import { Package, instance as pkg } from "../lib/package";
 import Spinner from "../lib/spinner";
 import request from "../lib/request";
+import {MultiplexingCommand} from "../lib/multiplexing_command";
+
 let Zip = require("jszip");
-const PULL_PUSH = "(<pull>  |  <push>  |  <sync>  | <publish> | <serve>) [<folder>] [--watch]";
 
 const messageInvalidParam = () => {
   logger.error("The user and app do not appear to be valid");
@@ -36,66 +37,25 @@ const messageError = (error: string) => {
   process.exit(1);
 };
 
-class Widget implements ICommand {
-  doc = `widget ${PULL_PUSH} [<user/app>] [<folder>] [--force] [--status]`;
-  spinner: Spinner;
-  package: Package;
+class Widget extends MultiplexingCommand implements ICommand {
+  doc = "widget <target> <subtarget> [<user/app>] [<toFolder>] [--status]";
+  invocations = ['get'];
+  package: any;
+
+  multiplexedCommands() {
+    return [
+      {name: 'pull', package: true, login: false},
+      {name: 'push', package: true, login: true},
+      {name: 'sync', package: true, login: true},
+      {name: 'publish', package: true, login: true},
+      {name: 'clone', package: false, login: true},
+      {name: 'serve', package: true, login: false},
+      {name: 'create', package: false, login: true}
+    ]
+  }
 
   constructor() {
-    this.spinner = new Spinner();
-  }
-
-  requiresPkg(options: Object) {
-    // Require a package for everything but pull
-    return (!(options["<pull>"] == "pull"))
-  }
-
-  requiresLogin(options: Object) {
-    if (options["<pull>"]) return false;
-    if (options["<serve>"]) return false;
-    return true;
-  }
-
-  invocations = ['widget'];
-
-  async run(options: Object) {
-    try {
-      var destination = options["<pull>"] || options["<push>"] || options["<sync>"] || options["<publish>"];
-      switch(destination) {
-        case 'pull':
-          await this.pull(options);
-          break;
-        case 'push':
-          await this.push(options);
-          break;
-        case 'sync':
-        console.log(options);
-          if (options['--status']) {
-            await this.syncStatus(options);
-          } else {
-            await this.sync(options);
-          }
-          break;
-        case 'publish':
-          await this.publish(options);
-          break;
-        case 'server':
-          await this.serve(options);
-          break;
-        default:
-          logger.error("Please specify either `widget pull` or `widget push` or `widget sync`")
-          break;
-      }
-      this.spinner.stop();
-      logger.success("-- Ok --");
-    } catch(e) {
-      this.spinner.stop();
-      logger.error(e);
-    }
-  }
-
-  async syncStatus(options: Object) {
-    let result = await Project.getTaskStatus(pkg.get("user"), pkg.get("app"), 'datasource', 'sheet', 'update-cache', 'gsheet');
+    super()
   }
 
   async serve(options: Object) {
@@ -104,7 +64,60 @@ class Widget implements ICommand {
   }
 
   async sync(options: Object) {
-    let result = await Project.initiatePublishSheet(pkg.get("user"), pkg.get("app"));
+    if (options['--status']) {
+      let result = await Project.getTaskStatus(pkg.get("user"), pkg.get("app"), 'datasource', 'sheet', 'update-cache', 'gsheet');
+    } else {
+      let result = await Project.initiatePublishSheet(pkg.get("user"), pkg.get("app"));
+    }
+  }
+
+  async clone(options: Object) {
+    let fromProject = options["<user/app>"];
+    let toFolder = options["<folder>"];
+
+    prompt().then((ans) => {
+      let cloneReq = Project.widgetCloneRequest(ans["title"], fromProject, ans["backend"]);
+      Project
+        .clone(cloneReq)
+        .then((appName) => {
+          let desination = path.resolve(process.cwd(), toFolder || appName);
+          Project
+            .pull(desination, config.get("Username"), appName, false)
+            .then(() => {
+              logger.success(`App ${appName} createed at ${desination}`)
+            }).catch((error) => {
+              logger.error(error.message || error);
+            });
+        })
+    })
+    .catch((error) => {
+      this.spinner.stop();
+      logger.error(error.body || error.message || error);
+    });
+  }
+
+  async create(options: Object) {
+    let toFolder = options["<folder>"];
+    prompt(true).then((ans) => {
+      let cloneReq = Project.widgetCloneRequest(ans["title"], "project-templates/starter-widget", ans["backend"], ans["stack"]);
+      Project
+      .clone(cloneReq)
+      .then((appName) => {
+        let desination = path.resolve(process.cwd(), toFolder || appName);
+        Project
+          .pull(desination, config.get("Username"), appName, false)
+          .then(() => {
+            this.spinner.stop();
+            logger.success(`App ${appName} createed at ${desination}`)
+          }).catch((error) => {
+            this.spinner.stop();
+            logger.error(error.message || error);
+          });
+      })
+    })
+    .catch((error) => {
+      logger.error(error.message);
+    });
   }
 
   async push(options: Object) {
@@ -115,10 +128,7 @@ class Widget implements ICommand {
     logger.info(`Package root directory detected: ${basePath}`);
     try {
       let result = await Project.push(basePath, pkg.get("user"), pkg.get("app"));
-      this.spinner.stop();
-      logger.success("-- Ok --");
     } catch(e) {
-      this.spinner.stop();
       logger.error(e);
     }
   }

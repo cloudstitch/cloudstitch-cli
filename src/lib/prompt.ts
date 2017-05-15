@@ -72,6 +72,76 @@ export function prompt(frontEndStack = false) {
   return inquirer.prompt(questions);
 }
 
+export function gitprompt(useSettings: boolean, currentGitRepo: string, proposedGitRepo: string) {
+  let questions = [];
+
+  if (useSettings) {
+    questions.push([
+      {
+        type: "confirm",
+        name: "localSettings",
+        message: "Use the project settings found in this folder?"
+      }
+    ]);
+  }
+
+  questions.push(
+    {
+      type: "input",
+      name: "title",
+      validate: function (value) {
+        var pass = value.length !== 0;
+        if (pass) {
+          return true;
+        }
+
+        return 'Please enter a title';
+      },
+      message: "What do you want to name your new project?"
+    }
+  );
+
+  questions.push(
+    {
+      type: "list",
+      name: "backend",
+      message: "Select your backend stack for data:",
+      choices: [
+        {
+          name: "Google Docs",
+          value: "google"
+        },
+        {
+          name: "Microsoft Office",
+          value: "microsoft"
+        }
+      ]
+    }
+  );
+
+  if (currentGitRepo) {
+    questions.push(
+      {
+        type: "confirm",
+        name: "useGit",
+        message: "Configure with the git repository in this project?"
+      }
+    );
+  } else {
+    if (proposedGitRepo) {
+      questions.push(
+        {
+          type: "confirm",
+          name: "fork",
+          message: "Fork the git repo associated with this project?"
+        }
+      );
+    }
+  } 
+
+  return inquirer.prompt(questions);
+}
+
 export function promptUse() {
   let questions = [
     {
