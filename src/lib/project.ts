@@ -161,7 +161,7 @@ export default class Project {
     return settingsJson;
   }
 
-  static async getInfo(user: string, app: string, url: string, json: string) {
+  static async getInfo(user: string, app: string, url?: string, json?: string) {
     let settingsUrl;
     let settings;
     let settingsJson;

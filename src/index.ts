@@ -26,6 +26,7 @@ for(var ii in dir) {
   for (let invocation of cmd.invocations) {
     commands[invocation] = cmd;
   }
+  console.log(d);
   doc = `${doc}  ${process.title} ${commands[d].doc}\n`;
   logger.info(`found ${d}: ${commands[d].doc}`)
 }

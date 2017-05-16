@@ -34,7 +34,9 @@ class OpenCmd extends MultiplexingCommand implements ICommand {
   }
 
   async project(options: Object) {
-    opn(`https://cloudstitch.com/${this.packageUser}/${this.packageApp}/edit`)
+    let url = `https://cloudstitch.com/${this.packageUser}/${this.packageApp}/edit`;
+    console.log(url);
+    opn(url, {wait: false})
   }
 
   async folder(options: Object) {
@@ -51,16 +53,28 @@ class OpenCmd extends MultiplexingCommand implements ICommand {
     }
 
     if ((folderSettings['linkedProjectFolderService'] == 'microsoft') && folderSettings['linkedProjectFolderPath']) {
-      opn(`https://cloudstitch-my.sharepoint.com/personal/services_cloudstitch_onmicrosoft_com/_layouts/15/onedrive.aspx?id=%2Fpersonal%2Fservices_cloudstitch_onmicrosoft_com%2FDocuments%2F${encodeURIComponent(folderSettings['linkedProjectFolderPath'])}`);
+      opn(`https://cloudstitch-my.sharepoint.com/personal/services_cloudstitch_onmicrosoft_com/_layouts/15/onedrive.aspx?id=%2Fpersonal%2Fservices_cloudstitch_onmicrosoft_com%2FDocuments%2F${encodeURIComponent(folderSettings['linkedProjectFolderPath'])}`,  {wait: false});
     } else if ((folderSettings['linkedProjectFolderService'] == 'google') && folderSettings['linkedProjectFolderKey'])  {
-      opn(`https://drive.google.com/drive/folders/${encodeURIComponent(folderSettings['linkedProjectFolderKey'])}`);
+      opn(`https://drive.google.com/drive/folders/${encodeURIComponent(folderSettings['linkedProjectFolderKey'])}`, {wait: false});
     } else {
       logger.error("Could not find an openable folder link.");
     }
   }
 
   async sheet(options: Object) {
-    logger.error("Unimplemented");    
+    var info = await Project.getInfo(this.packageUser, this.packageApp);
+    if (info.apiSpreadsheetService == 'google') {
+      if (info.apiSpreadsheetKey) {
+        opn(`https://docs.google.com/spreadsheets/d/${encodeURIComponent(info['apiSpreadsheetKey'])}`, {wait: false});
+        return;
+      }
+    } else if (info.apiSpreadsheetService == 'microsoft') {
+      if (info.apiSpreadsheetKey) {
+        opn(`https://cloudstitch-my.sharepoint.com/personal/services_cloudstitch_onmicrosoft_com/_layouts/15/onedrive.aspx?id=%2Fpersonal%2Fservices_cloudstitch_onmicrosoft_com%2FDocuments%2F${encodeURIComponent(info['apiSpreadsheetKey'])}`, {wait: false});
+        return;
+      }
+    }
+    logger.error("Unable to open your project's API Spreadsheet. Please type 'cloudstitch open project' and try the web interface.");
   }
 
 }

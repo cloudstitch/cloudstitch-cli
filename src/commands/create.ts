@@ -36,6 +36,10 @@ class Create implements ICommand {
     this.toFolder = options["<folder>"];
     var self = this;
 
+    if (pkg.get('user') || pkg.get('app')) {
+      
+    }
+
     let template = pkg.get('template');
     let currentGitRepo = getCurrentGitRepo();
     let localSettingsFound = false;

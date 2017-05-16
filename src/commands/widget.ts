@@ -39,7 +39,7 @@ const messageError = (error: string) => {
 
 class Widget extends MultiplexingCommand implements ICommand {
   doc = "widget <target> <subtarget> [<user/app>] [<toFolder>] [--status]";
-  invocations = ['get'];
+  invocations = ['widget'];
   package: any;
 
   multiplexedCommands() {

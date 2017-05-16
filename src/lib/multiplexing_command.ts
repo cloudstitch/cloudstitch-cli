@@ -36,7 +36,7 @@ export class MultiplexingCommand {
 
   requiresPkg(options: Object) {
     for (var cmd of this.multiplexedCommands()) {
-      if (options[`<${cmd.name}>`]) {
+      if (options[`<target>`] == cmd.name) {
         this.didRequirePkg = true;
         return true;
       }
@@ -46,7 +46,7 @@ export class MultiplexingCommand {
 
   requiresLogin(options: Object) {
     for (var cmd of this.multiplexedCommands()) {
-      if (options[`<${cmd.name}>`]) {
+      if (options[`<target>`] == cmd.name) {
         this.didRequireLogin = true;
         return true;
       }
@@ -68,14 +68,17 @@ export class MultiplexingCommand {
     }
 
     if (this.didRequirePkg) {
+      console.log("did require package");
       try {
         this.packageUser = pkg.get('user');
       } catch(ex) {
+        console.log("Couldn't get package",ex);
       }
 
       try {
         this.packageApp = pkg.get('app');
       } catch(ex) {
+        console.log("Couldn't get app",ex);
       }
 
       if ((!this.packageApp) || (!this.packageUser)) {
@@ -90,7 +93,6 @@ export class MultiplexingCommand {
       for (var cmd of this.multiplexedCommands()) {
         directObject = directObject || options[`<target>`];
       }
-      console.log("We decided upon", directObject);
       if (typeof this[directObject] != 'undefined') {
         try {
           await this[directObject](options);
