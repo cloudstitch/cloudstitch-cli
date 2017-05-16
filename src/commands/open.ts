@@ -25,6 +25,7 @@ class OpenCmd extends MultiplexingCommand implements ICommand {
     return [
       {name: 'project', package: true, login: true},
       {name: 'folder', package: true, login: true},
+      {name: 'repo', package: true, login: true},
       {name: 'sheet', package: true, login: true}
     ]
   }
@@ -77,6 +78,22 @@ class OpenCmd extends MultiplexingCommand implements ICommand {
     logger.error("Unable to open your project's API Spreadsheet. Please type 'cloudstitch open project' and try the web interface.");
   }
 
+  async repo(options: Object) {
+    var info = await Project.getInfo(this.packageUser, this.packageApp);
+
+    if (info.gitLink) {
+      if (info.gitLink.service && info.gitLink.user && info.gitLink.repo) {
+        if (info.gitLink.service == 'github') {
+          opn(`https://github.com/${encodeURIComponent(info.gitLink.user)}/${encodeURIComponent(info.gitLink.repo)}`, {wait: false});
+          return;
+        } else if (info.gitLink.service == 'gitlab') {
+          opn(`https://gitlab.com/${encodeURIComponent(info.gitLink.user)}/${encodeURIComponent(info.gitLink.repo)}`, {wait: false});
+          return;
+        }
+      }
+    }
+    logger.error("Unable to open your project's repository. Please type 'cloudstitch open project' and try the web interface.");
+  }
 }
 
 export = new OpenCmd();
