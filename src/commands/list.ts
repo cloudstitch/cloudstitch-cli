@@ -33,7 +33,7 @@ class ListCmd extends MultiplexingCommand implements ICommand {
   }
 
   async notifications(options: Object) {
-    logger.error("Unimplemented");
+    await Project.listObjects(this.packageUser, this.packageApp, 'notifications');
   }
 
 }

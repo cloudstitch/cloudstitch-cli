@@ -201,8 +201,6 @@ export default class Project {
     let settingsJson;
     let settingsUrl = `/project/${user}/${app}/settings/${component}`
     
-    console.log("PATH", settingsUrl);
-
     try {
       settings = fs.readFileSync(filename).toString();
     } catch(ex) {
@@ -217,8 +215,6 @@ export default class Project {
       return;
     }
 
-    console.log("SET", settingsJson);
-
     let settingsResp = await Request.post(settingsUrl, settingsJson);
     logger.info(`Deployed settings: \n\n ${JSON.stringify(settingsJson, undefined, 2)}\n\n`);
     return settingsResp;
@@ -229,25 +225,50 @@ export default class Project {
 
     if (listResp && listResp.body) {
       for (var app of listResp.body) {
-        logger.info(`- ${user}/${app.appname}`)
+        console.log(`- ${user}/${app.appname}`)
       }
     } else {
-      logger.info('No apps found.');
+      console.log('No projects found.');
     }
   }
 
   static async removeObject(user: string, app: string, component: string, id: string) {
-    logger.info(`IMPLEMENT`);
+    let settingsUrl = `/project/${user}/${app}/${component}/delete`;
+    let objBody = {
+      label: 'sheet',
+      id: id
+    }
+    let settingsResp = await Request.post(settingsUrl, objBody);
+    console.log("Deleted.");
   }
 
   static async listObjects(user: string, app: string, component: string) {
-    logger.info(`IMPLEMENT`);
+    let settingsUrl = `/project/${user}/${app}/${component}`;
+    let settingsResp = await Request.get(settingsUrl);
+    console.log(JSON.stringify(settingsResp, undefined, 2));
   }
 
   static async addObject(user: string, app: string, component: string, filename: string) {
-    logger.info(`IMPLEMENT`);
-  }
+    let settingsUrl = `/project/${user}/${app}/${component}`;
+    let settings = '{}';   
+    let settingsJson = {}; 
+    try {
+      settings = fs.readFileSync(filename).toString();
+    } catch(ex) {
+      logger.error("Unable to read your settings file");
+      return;
+    }
 
+    try {
+      settingsJson = JSON.parse(settings);
+    } catch(ex) {
+      logger.error("This settings JSON isn't well formed");
+      return;
+    }
+    settingsJson['label'] = 'sheet';
+    let settingsResp = await Request.post(settingsUrl, settingsJson);
+    console.log("Added.\n" + JSON.stringify(settingsResp, undefined, 2));
+  }
 
   static async delete(user: string, app: string) {
     let deleteUrl = `/project/${user}/${app}/delete`

@@ -15,7 +15,7 @@ import {MultiplexingCommand} from "../lib/multiplexing_command";
 const SUBCOMMANDS = "<list|delete>";
 
 class RemoveCmd extends MultiplexingCommand implements ICommand {
-  doc = "remove <target>";
+  doc = "remove <target> [--id=<id>]";
   invocations = ['remove'];
 
   multiplexedCommands() {
@@ -52,7 +52,7 @@ class RemoveCmd extends MultiplexingCommand implements ICommand {
   }
 
   async notification(options: Object) {
-    logger.error("Unimplemented");
+    await Project.removeObject(this.packageUser, this.packageApp, 'notifications', options["<id>"]);
   }
   
 }

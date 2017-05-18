@@ -15,7 +15,7 @@ import {MultiplexingCommand} from "../lib/multiplexing_command";
 const SUBCOMMANDS = "<list|delete>";
 
 class AppCmd extends MultiplexingCommand implements ICommand {
-  doc = "add <target>";
+  doc = "add <target> [--jsonfile=<jsonfile>]";
   invocations = ['add'];
 
   multiplexedCommands() {
@@ -29,7 +29,7 @@ class AppCmd extends MultiplexingCommand implements ICommand {
   }
 
   async notification(options: Object) {
-    logger.error("Unimplemented");
+    await Project.addObject(this.packageUser, this.packageApp, 'notifications', options["<jsonfile>"]);
   }
 
 }
