@@ -233,7 +233,7 @@ export default class Project {
   }
 
   static async removeObject(user: string, app: string, component: string, id: string) {
-    let settingsUrl = `/project/${user}/${app}/${component}/delete`;
+    let settingsUrl = `/project/${user}/${app}/settings/${component}/delete`;
     let objBody = {
       label: 'sheet',
       id: id
@@ -242,14 +242,24 @@ export default class Project {
     console.log("Deleted.");
   }
 
+  /*
+   * This is really the same as getSettings, though we might unpack ig.
+   * The semantics of some settings endpoints is that it returns a list of
+   * items, each with its own id.
+   */
   static async listObjects(user: string, app: string, component: string) {
-    let settingsUrl = `/project/${user}/${app}/${component}`;
+    let settingsUrl = `/project/${user}/${app}/settings/${component}`;
     let settingsResp = await Request.get(settingsUrl);
     console.log(JSON.stringify(settingsResp, undefined, 2));
   }
 
+  /*
+   * This is really the same as postSettings.
+   * Some settings endpoints work like a list with upsert behavior.
+   * You create/update items on posting objects without/with an id field.
+   */
   static async addObject(user: string, app: string, component: string, filename: string) {
-    let settingsUrl = `/project/${user}/${app}/${component}`;
+    let settingsUrl = `/project/${user}/${app}/settings/${component}`;
     let settings = '{}';   
     let settingsJson = {}; 
     try {
