@@ -52,7 +52,7 @@ class RemoveCmd extends MultiplexingCommand implements ICommand {
   }
 
   async notification(options: Object) {
-    await Project.removeObject(this.packageUser, this.packageApp, 'notifications', options["<id>"]);
+    await Project.removeObject(this.packageUser, this.packageApp, 'notifications', options["--id"]);
   }
   
 }

@@ -29,7 +29,7 @@ class AppCmd extends MultiplexingCommand implements ICommand {
   }
 
   async notification(options: Object) {
-    await Project.addObject(this.packageUser, this.packageApp, 'notifications', options["<jsonfile>"]);
+    await Project.addObject(this.packageUser, this.packageApp, 'notifications', options["--jsonfile"]);
   }
 
 }

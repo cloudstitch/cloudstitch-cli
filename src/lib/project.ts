@@ -167,9 +167,9 @@ export default class Project {
     let settingsJson;
 
     if (url) {
-      settingsUrl = `/project/${user}/${app}/infocard`;
+      settingsUrl = `/project/${user}/${app}`;
     } else {
-      settingsUrl = `/project/${user}/${app}/infocard`;
+      settingsUrl = `/project/${user}/${app}`;
     }
     
     if (json) {
@@ -225,7 +225,7 @@ export default class Project {
 
     if (listResp && listResp.body) {
       for (var app of listResp.body) {
-        console.log(`- ${user}/${app.appname}`)
+        console.log(`- ${user}/${app.appname}`)        
       }
     } else {
       console.log('No projects found.');
@@ -250,7 +250,7 @@ export default class Project {
   static async listObjects(user: string, app: string, component: string) {
     let settingsUrl = `/project/${user}/${app}/settings/${component}`;
     let settingsResp = await Request.get(settingsUrl);
-    console.log(JSON.stringify(settingsResp, undefined, 2));
+    console.log(JSON.stringify(settingsResp.body, undefined, 2));
   }
 
   /*
@@ -277,7 +277,7 @@ export default class Project {
     }
     settingsJson['label'] = 'sheet';
     let settingsResp = await Request.post(settingsUrl, settingsJson);
-    console.log("Added.\n" + JSON.stringify(settingsResp, undefined, 2));
+    console.log("Added.\n" + JSON.stringify(settingsResp.body, undefined, 2));
   }
 
   static async delete(user: string, app: string) {
