@@ -215,7 +215,7 @@ export default class Project {
       return;
     }
 
-    let settingsResp = await Request.post(settingsUrl, settingsJson);
+    let settingsResp = await Request.post(settingsUrl, {payload: settingsJson});
     logger.info(`Deployed settings: \n\n ${JSON.stringify(settingsJson, undefined, 2)}\n\n`);
     return settingsResp;
   }
@@ -276,7 +276,7 @@ export default class Project {
       return;
     }
     settingsJson['label'] = 'sheet';
-    let settingsResp = await Request.post(settingsUrl, settingsJson);
+    let settingsResp = await Request.post(settingsUrl, {payload: settingsJson});
     console.log("Added.\n" + JSON.stringify(settingsResp.body, undefined, 2));
   }
 
