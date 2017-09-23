@@ -35,10 +35,11 @@ export class MultiplexingCommand {
   }
 
   requiresPkg(options: Object) {
-    for (var cmd of this.multiplexedCommands()) {
+    let cmds = this.multiplexedCommands();
+    for (var cmd of cmds) {
       if (options[`<target>`] == cmd.name) {
-        this.didRequirePkg = true;
-        return true;
+        this.didRequirePkg = cmd.package;
+        this.didRequirePkg;
       }
     }
     return false;
@@ -47,8 +48,8 @@ export class MultiplexingCommand {
   requiresLogin(options: Object) {
     for (var cmd of this.multiplexedCommands()) {
       if (options[`<target>`] == cmd.name) {
-        this.didRequireLogin = true;
-        return true;
+        this.didRequireLogin = cmd.login;
+        this.didRequireLogin;
       }
     }
     return false;
@@ -59,6 +60,7 @@ export class MultiplexingCommand {
       try {
         this.cliUser = config.get('Username');
       } catch(ex) {
+        logger.error("Couldn't get username");
       }
       if (!this.cliUser) {
         this.spinner.stop();

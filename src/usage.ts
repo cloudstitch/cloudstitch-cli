@@ -107,36 +107,28 @@ const output =
       "title": "Project Metadata",
       "commands": [
         {
-          "title": "list",
-          "description": "",
+          "title": "list <resource>",
+          "description": "Lists information about your project or account.",
           "subcommands": [
             {
-              "title": "notifications",
-              "description": "List the notification rules for this project"
-            },
-            {
-              "title": "projects",
-              "description": "List your projects on Cloudstitch"
+              "title": "<resource>",
+              "description": "projects"
             }
           ]
         },
         {
-          "title": "remove",
-          "description": "List settings for <resource>",
+          "title": "remove <resource>",
+          "description": "Removes a resource from your account.",
           "subcommands": [
             {
-              "title": "project",
-              "description": "Remove the current project from Cloudstitch"
-            },
-            {
-              "title": "notification <id>",
-              "description": "Removes notification <id> from the current project."
+              "title": "<resource>",
+              "description": "project"
             }
           ]
         },
         {
           "title": "get <resource> settings",
-          "description": "",
+          "description": "Gets the settings for a particular aspect of your project.",
           "subcommands": [
             {
               "title": "<resource>",
@@ -145,8 +137,8 @@ const output =
           ]
         },
         {
-          "title": "set <resource> settings",
-          "description": "",
+          "title": "set <resource> settings --jsonfile=<filename>",
+          "description": "Saves the settings for a particular aspect of your project.",
           "subcommands": [
             {
               "title": "<resource>",

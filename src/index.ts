@@ -52,9 +52,9 @@ try {
 
 let messagePackageValidationError = (pkgValidation) => {
   if(pkgValidation.packageMalformed) {
-    logger.error("Cloudstitch package defenition appears to be missing critical information or is malformed check please check your cloudstitch.json");
+    logger.error("Cloudstitch package definition appears to be missing critical information or is malformed check please check your cloudstitch.json");
   } else if(pkgValidation.notFound) {
-    logger.error("Cloudstitch package defenition could not be found the the current or parent directories please create a cloudstitch.json file");
+    logger.error("Cloudstitch package definition could not be found the the current or parent directories please create a cloudstitch.json file");
   }
   process.exit(1);
 };

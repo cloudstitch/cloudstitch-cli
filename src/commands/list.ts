@@ -12,11 +12,10 @@ import { instance as pkg } from "../lib/package";
 import Spinner from "../lib/spinner";
 import {MultiplexingCommand} from "../lib/multiplexing_command";
 
-const SUBCOMMANDS = "<list|delete>";
-
 class ListCmd extends MultiplexingCommand implements ICommand {
   doc = "list <target>";
   invocations = ['list'];
+
   multiplexedCommands() {
     return [
       {name: 'projects', package: false, login: true},
